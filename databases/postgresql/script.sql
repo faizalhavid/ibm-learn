@@ -1,23 +1,3 @@
--- BASIC POSTGRESQL COMMANDS
--- 1. Connect to PostgreSQL
--- 2. Create a database
--- 3. Create a table
--- 4. Insert data into a table
--- 5. Query data from a table
--- 6. Update data in a table
--- 7. Delete data from a table
--- 8. Drop a table
--- 9. Drop a database
--- 10. List all databases
--- 11. List all tables in a database
--- 12. Show the structure of a table
--- 13. Add a column to a table
--- 14. Remove a column from a table
--- 15. Rename a table
--- 16. Rename a column in a table
-
-
-
 
 
 -- SQL STUDY CASE
