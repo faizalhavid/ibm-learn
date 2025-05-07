@@ -142,3 +142,43 @@ JOIN books b ON oi.book_id = b.id
 ORDER BY quantity desc
 LIMIT 3
 ;
+
+
+
+SELECT b.title, sum(oi.quantity) AS pendapatan
+FROM order_items oi 
+INNER JOIN books b ON oi.book_id = b.id
+GROUP BY b.id  
+ORDER BY pendapatan DESC 
+LIMIT 3
+;
+
+SELECT c.*,sum(oi.quantity) total_buku
+FROM order_items oi 
+INNER JOIN orders o ON o.id = oi.order_id 
+INNER JOIN customers c ON c.id = o.customer_id
+GROUP BY c.id,oi.quantity 
+HAVING oi.quantity > 3
+;
+
+
+CREATE OR REPLACE  VIEW best_selling_books AS 
+SELECT b.id, b.title,sum(oi.quantity) terjual
+FROM order_items oi 
+INNER JOIN books b ON b.id = oi.book_id
+GROUP BY b.id, oi.quantity 
+ORDER BY terjual DESC 
+;
+SELECT * FROM best_selling_books ;
+
+
+WITH customer_high_total_price AS (
+	SELECT o.customer_id, sum(o.total_amount) total_price
+	FROM orders o
+	GROUP BY o.customer_id 
+	ORDER BY total_price DESC 
+	LIMIT 1
+)
+SELECT c.name
+FROM customers c 
+WHERE c.id = (SELECT c.id FROM customer_high_total_price);
