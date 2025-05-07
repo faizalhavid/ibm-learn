@@ -45,6 +45,8 @@ CREATE TABLE order_items (
 );
 
 
+
+
 drop table bookstore.public.authors cascade;
 drop table bookstore.public.books cascade;
 drop table bookstore.public.orders;
@@ -182,3 +184,106 @@ WITH customer_high_total_price AS (
 SELECT c.name
 FROM customers c 
 WHERE c.id = (SELECT c.id FROM customer_high_total_price);
+
+
+
+
+
+WITH customer_high_total_price AS (
+	SELECT o.customer_id, sum(o.total_amount) total_price
+	FROM orders o
+	GROUP BY o.customer_id 
+	ORDER BY total_price DESC 
+	LIMIT 1
+)
+SELECT c.name
+FROM customers c 
+WHERE c.id = (SELECT c.id FROM customer_high_total_price);
+
+
+SELECT b.title,
+o.total_amount,
+RANK() OVER (ORDER BY o.total_amount DESC) as rank
+FROM order_items oi
+INNER JOIN orders o on o.id = oi.order_id
+INNER JOIN books b on b.id = oi.book_id;
+
+
+
+UPDATE books b
+SET stock = b.stock + 100
+FROM order_items oi
+WHERE b.id = oi.book_id;
+
+
+CREATE TRIGGER update_book_stock
+AFTER INSERT ON order
+FOR EACH ROW
+BEGIN
+	UPDATE books b 
+	SET b.stock = b.stock - oi.quantity
+	INNER JOIN order_items oi on oi.id = b.id
+END;
+
+
+CREATE OR REPLACE FUNCTION update_book_stock()
+RETURNS trigger as $$
+BEGIN
+	UPDATE books b
+	SET stock = stock - oi.quantity
+	FROM order_items oi
+	WHERE oi.book_id = b.id;
+	RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE TRIGGER trigger_insert_log
+AFTER INSERT ON order_items
+FOR EACH ROW
+EXECUTE FUNCTION update_book_stock();
+
+
+-- Drop the trigger
+DROP TRIGGER IF EXISTS trigger_insert_log ON order_items;
+
+-- Drop the function
+DROP FUNCTION IF EXISTS update_book_stock();
+
+
+
+
+
+INSERT INTO orders(customer_id, total_amount)
+VALUES
+--	book_id : 1,2
+	(1, 140000),
+--  book_id : 15,10
+	(2, 54500),
+--  book_id : 6, amount 10
+	(2, 4000000)
+;
+
+SELECT * FROM orders;
+
+INSERT INTO order_items(order_id, book_id, quantity, price_each)
+VALUES
+	(<newId>, 1, 1, 75000),
+	(<newId>, 2, 1, 65000),
+	(<newId>, 15, 1, 34500),
+	(<newId>, 10, 1, 20000),
+	(<newId>, 6, 10, 400000)
+;
+
+SELECT * FROM books;
+
+
+
+ALTER TABLE order_items
+DROP CONSTRAINT IF EXISTS order_items_book_id_fkey;
+
+ALTER TABLE order_items
+ADD CONSTRAINT order_items_book_id_fkey
+FOREIGN KEY (book_id)
+REFERENCES books(id)
+ON DELETE CASCADE;
