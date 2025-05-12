@@ -1,0 +1,2 @@
+docker  build -t file_ignore ignore;docker container create --name container_ignore file_ignore:latest;docker container start container_ignore;docker container logs container_ignore
+docker rm container_ignore;docker rmi file_ignore:latest
