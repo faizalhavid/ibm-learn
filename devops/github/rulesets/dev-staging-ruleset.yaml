@@ -1,0 +1,21 @@
+name: Dev & Staging Ruleset
+target: branch
+enforcement: active
+bypass_actors:
+  - type: GitHubApp
+    actor_id: github-actions[bot]
+rules:
+  - type: required_pull_request_review
+    enabled: true
+    required_approving_review_count: 1
+  - type: required_status_checks
+    enabled: true
+    strict: false
+    contexts:
+      - build
+      - test
+  - type: required_conversation_resolution
+    enabled: true
+branches:
+  - dev
+  - staging
