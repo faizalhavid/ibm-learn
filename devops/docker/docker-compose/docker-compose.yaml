@@ -1,0 +1,20 @@
+services:
+  # Service definitions
+
+  # mongodb-example:
+  #   image: mongo:latest
+  #   container_name: mongodb-example
+
+  nginx-example:
+    image: nginx:latest
+    container_name: nginx-example
+    # Port mapping
+    # Short syntax
+    # Ports: [hostPort:containerPort]
+    # example: 80808:80'
+    # Long syntax
+    # Ports:
+    #   - protocol: 'tcp'
+    # example: 80808:80'
+    ports:
+      - '80808:80'
