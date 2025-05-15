@@ -1,0 +1,30 @@
+services:
+  app:
+    container_name: app
+    build:
+      context: './app'
+      dockerfile: Dockerfile
+    image: 'app-golang:latest'
+    environment:
+      - APP_PORT=8080
+      - APP_MODE=local
+    ports:
+      - 8080:8080
+    # Healthcheck
+    #  The healthcheck option is used to specify the health check for the container.
+    #  The test option is used to specify the command to run for the health check.
+    #  The interval option is used to specify the interval between health checks.
+    #  The timeout option is used to specify the timeout for the health check.
+    #  The retries option is used to specify the number of retries before the container is considered unhealthy.
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:8080/health']
+      interval: 5s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+      # Extending services
+    #  The extends option is used to extend a service from another service.
+    #  copy this file, change env app mode and rename file, and then run :
+    #  docker compose -f docker-compose.yaml -f docker-compose.prod.yaml create
+    #  docker compose -f docker-compose.yaml -f docker-compose.prod.yaml down
+# then run docker compose build

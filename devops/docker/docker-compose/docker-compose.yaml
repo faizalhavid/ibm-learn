@@ -1,0 +1,66 @@
+services:
+  # Service definitions
+
+  mongodb-example:
+    image: mongo:latest
+    container_name: mongodb-example
+    ports:
+      - 27017:27017
+    # Environment variable
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=faizal
+      - MONGO_INITDB_ROOT_PASSWORD=faizal
+      - MONGO_INITDB_DATABASE=admin
+
+    # Bind mount
+    # Mounting a host directory, format: <host_path>:<container_path>
+    # Short syntax
+    # volumes:
+    #   - ./mongo-data:/data/db
+    # Long syntax
+    # volumes:
+    #   - type: bind
+    #     source: ./mongo-data
+    #     target: /data/db
+    #     read_only: false
+
+    # Create a named volume
+    # Short syntax
+    # volumes:
+    #   - mongo-data:/data/db
+    # Long syntax
+    volumes:
+      - type: volume
+        source: mongo-data-vol
+        target: /data/db
+        read_only: false
+    # Network
+    # 1 or more networks can be defined for a service
+    networks:
+      - network_1
+  # Volume definitions
+  nginx-example:
+    image: nginx:latest
+    container_name: nginx-example
+    # Port mapping
+    # Short syntax
+    # ports:
+    #   - 8080:80
+    # Long syntax
+    ports:
+      - protocol: 'tcp'
+        published: 8080
+        target: 80
+# Network
+# Docker Compose creates a default network for the services, the name is based on the directory name
+# and the project name. You can specify a custom network if needed.
+networks:
+  network_1:
+    name: network_1
+    driver: bridge
+# Volumes Definitions
+#  We must Define the volumes in the volumes section at the bottom of the file and also define inside the service when creating container
+volumes:
+  # Named volume
+  mongo-data-vol:
+    name: mongo-data-vol

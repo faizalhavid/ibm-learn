@@ -1,0 +1,57 @@
+{
+    "name": "Main Branch Ruleset",
+    "target": "branch",
+    "enforcement": "active",
+    "bypass_actors": [
+        {
+            "type": "GitHubApp",
+            "actor_id": "github-actions[bot]"
+        },
+        {
+            "type": "Team",
+            "actor_id": "admins"
+        }
+    ],
+    "rules": [
+        {
+            "type": "required_pull_request_review",
+            "enabled": true,
+            "required_approving_review_count": 2,
+            "require_code_owner_review": true
+        },
+        {
+            "type": "required_status_checks",
+            "enabled": true,
+            "strict": true,
+            "contexts": [
+                "build",
+                "test"
+            ]
+        },
+        {
+            "type": "required_signatures",
+            "enabled": true
+        },
+        {
+            "type": "required_linear_history",
+            "enabled": true
+        },
+        {
+            "type": "required_conversation_resolution",
+            "enabled": true
+        },
+        {
+            "type": "restrict_pushes",
+            "enabled": true,
+            "actors": [
+                {
+                    "type": "Team",
+                    "actor_id": "maintainers"
+                }
+            ]
+        }
+    ],
+    "branches": [
+        "main"
+    ]
+}

@@ -1,3 +1,4 @@
 devops/docker/mounting/*
 devops/docker/backup/*
+devops/docker/docker-compose/mongo-data/*
 **/.idea/
