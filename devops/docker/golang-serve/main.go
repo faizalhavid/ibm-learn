@@ -6,10 +6,13 @@ import (
 	"os"
 )
 
+var counter = 0
+
 func main() {
 	port := os.Getenv("APP_PORT")
 	fmt.Println("Starting server on port:", port)
 	http.HandleFunc("/", tesServer)
+	http.HandleFunc("/health", healthCheck)
 	http.ListenAndServe(":"+port, nil)
 }
 
@@ -25,4 +28,15 @@ func tesServer(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 	fmt.Println("Done writing to file:", file)
+}
+
+func healthCheck(w http.ResponseWriter, r *http.Request) {
+	counter += 1
+	if counter > 5 {
+		w.WriteHeader(http.StatusTooManyRequests)
+		http.Error(w, "Too many requests", http.StatusTooManyRequests)
+		return
+	}
+	fmt.Fprintln(w, "OK")
+	fmt.Println("Health check called")
 }
