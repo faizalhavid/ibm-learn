@@ -97,3 +97,18 @@ pipeline {
     }
 }
 ```
+
+### Post Actions
+
+The `post` directive defines actions that will be executed
+after the pipeline or a specific stage completes. You can specify different conditions, such as `success`, `failure`, `always`, and `unstable`. Post actions can include notifications, cleanup tasks, and other actions that should be performed after the pipeline execution
+is complete. For example, you can send an email notification, archive artifacts, or clean up temporary files.
+list of post actions:
+
+- `always`: This block will always be executed, regardless of the pipeline or stage result (success, failure, aborted, etc.). It is useful for cleanup tasks that must run no matter what.
+- `success`: This block will be executed only if the pipeline or stage completes successfully.
+- `failure`: This block will be executed only if the pipeline or stage fails.
+- `unstable`: This block will be executed if the pipeline or stage is marked as unstable.
+- `changed`: This block will be executed if the pipeline or stage changes its status (e.g., from success to failure).
+- `aborted`: This block will be executed if the pipeline or stage is aborted.
+- `cleanup`: This block will be executed

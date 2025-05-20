@@ -1,4 +1,6 @@
 pipeline {
+
+    //  Agent Instruction
     //agent any
     agent {
         node {
@@ -6,7 +8,7 @@ pipeline {
             label "wsl || linux && debian"
         }
     }
-    
+    // Stages Instruction
     stages {
         stage('Build') {
             steps {
@@ -28,9 +30,19 @@ pipeline {
         }
     }
 
+    // Post Actions Instruction
     post {
         always {
             echo 'This will always run after the stages.'
+        }
+        success {
+            echo 'This will run only if the pipeline is successful.'
+        }
+        failure {
+            echo 'This will run only if the pipeline fails.'
+        }
+        cleanup {
+            echo 'This will run after the pipeline, regardless of success or failure.'
         }
     }
 }
