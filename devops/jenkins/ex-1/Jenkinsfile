@@ -11,20 +11,29 @@ pipeline {
     // Stages Instruction
     // stages are the main part of the pipeline, if any stage fails, the pipeline will stop and will continue to the post actions
     stages {
+        stage('Base') {
+            steps {
+                echo 'Move directory to the project'
+                sh("cd ../spring-project")
+                sh('echo "Check the current directory"; pwd; echo "Check the current user"; whoami; echo "Check the current date"; date; echo "Check the current time"')
+            }
+        }
         stage('Build') {
             //  Steps Instruction
             // steps are the commands that will be executed in the stage
             // steps are the main part of the stage, if any step fails, the stage will fail and the pipeline will stop
             steps {
                 echo 'Building...'
-                sleep(5)
+                // sleep(5)
+                sh("./mvnw clean compile package")
                 echo 'Build completed!'
             }
         }
         stage('Test') {
             steps {
                 echo 'Testing...'
-                sleep(5)
+                // sleep(5)
+                sh("./mvnw test")
                 echo 'Test completed!'
             }
         }
