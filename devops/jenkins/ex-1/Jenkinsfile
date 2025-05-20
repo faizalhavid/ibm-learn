@@ -18,7 +18,7 @@ pipeline {
             steps {
                 echo 'Building...'
                 // sleep(5)
-                sh("cd devops/jenkins/spring-project ; ./mvnw clean compile package")
+                sh("cd devops/jenkins/spring-project ; chmod +x mvnw ;  ./mvnw clean compile package")
                 echo 'Build completed!'
             }
         }
@@ -26,7 +26,7 @@ pipeline {
             steps {
                 echo 'Testing...'
                 // sleep(5)
-                sh("cd devops/jenkins/spring-project ; ./mvnw test")
+                sh("cd devops/jenkins/spring-project ; chmod +x mvnw ;  ./mvnw test")
                 echo 'Test completed!'
             }
         }
