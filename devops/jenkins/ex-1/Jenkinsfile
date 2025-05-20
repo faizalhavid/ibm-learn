@@ -26,10 +26,10 @@ pipeline {
                     // in Jenkins web UI, you need to install the plugin "Pipeline Utility Steps" to use this function
                     // for all utility steps, you can see in doc https://www.jenkins.io/doc/pipeline/steps/pipeline-utility-steps/
                     def data = [
-                        "firstName": "John",
-                        "lastName": "Doe"
+                        "firstName" : "John",
+                        "lastName" : "Doe"
                     ]
-                    writeJSON(file: 'data.json', json: data)
+                    writeJSON (file: 'data.json', json: data)
                     
                 }
                 echo 'Building...'
