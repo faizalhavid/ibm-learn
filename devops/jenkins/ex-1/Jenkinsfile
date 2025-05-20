@@ -22,6 +22,15 @@ pipeline {
                     for (int i = 0; i < 10; i++) {
                         echo "Hello World ${i}"
                     }
+                    // Pipeline utility steps
+                    // in Jenkins web UI, you need to install the plugin "Pipeline Utility Steps" to use this function
+                    // for all utility steps, you can see in doc https://www.jenkins.io/doc/pipeline/steps/pipeline-utility-steps/
+                    def data:ArrayList[
+                        "firstName" : "John",
+                        "lastName" : "Doe",
+                    ]
+                    writeJSON (file: 'data.json', json: data)
+                    
                 }
                 echo 'Building...'
                 // sleep(5)
