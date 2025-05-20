@@ -2,16 +2,25 @@ pipeline {
 
     //  Agent Instruction
     //agent any
-    agent {
-        node {
-            // its mean use expression 
-            label "wsl || linux && debian"
-        }
-    }
+    // agent {
+    //     node {
+    //         // its mean use expression 
+    //         label "wsl || linux && debian"
+    //     }
+    // }
+    // if agent set the none, we can set each stage with different agent
+    agent none
+    
     // Stages Instruction
     // stages are the main part of the pipeline, if any stage fails, the pipeline will stop and will continue to the post actions
     stages {
         stage('Build') {
+            agent {
+                node {
+                    // its mean use expression 
+                    label "wsl || linux && debian"
+                }
+            }
             //  Steps Instruction
             // steps are the commands that will be executed in the stage
             // steps are the main part of the stage, if any step fails, the stage will fail and the pipeline will stop
@@ -39,6 +48,12 @@ pipeline {
             }
         }
         stage('Test') {
+            agent {
+                node {
+                    // its mean use expression 
+                    label "wsl || linux && debian"
+                }
+            }
             steps {
                 echo 'Testing...'
                 // sleep(5)
