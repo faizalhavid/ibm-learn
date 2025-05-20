@@ -9,23 +9,30 @@ pipeline {
         }
     }
     // Stages Instruction
+    // stages are the main part of the pipeline, if any stage fails, the pipeline will stop and will continue to the post actions
     stages {
         stage('Build') {
+            //  Steps Instruction
+            // steps are the commands that will be executed in the stage
+            // steps are the main part of the stage, if any step fails, the stage will fail and the pipeline will stop
             steps {
                 echo 'Building...'
-                // Add your build commands here
+                sleep(5)
+                echo 'Build completed!'
             }
         }
         stage('Test') {
             steps {
                 echo 'Testing...'
-                // Add your test commands here
+                sleep(5)
+                echo 'Test completed!'
             }
         }
         stage('Deploy') {
             steps {
                 echo 'Deploying...'
-                // Add your deployment commands here
+                sleep(5)
+                echo 'Deploy completed!'
             }
         }
     }
