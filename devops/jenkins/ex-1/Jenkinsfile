@@ -1,5 +1,11 @@
 pipeline {
-    agent any
+    //agent any
+    agent {
+        node {
+            // its mean use expression 
+            label "wsl || linux && debian"
+        }
+    }
     
     stages {
         stage('Build') {
