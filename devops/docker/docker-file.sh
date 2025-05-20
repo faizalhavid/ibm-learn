@@ -21,3 +21,8 @@ docker build -t nurhavid-1/from --label version=1.0 from
 
 
 # EXPOSE# Expose i
+
+
+curl -X POST -H 'Content-Type:application/json' -d '{"chat_id":"1991174783","text":"[SUCCESS] Ukata api build success!","disable_notification":false}' "https://api.telegram.org/bot7859816771:AAGUKuWDBCk36Qqzu8anbKtVp_atZnEqZbE/sendMessage"
+curl -X POST -H 'Content-Type:application/json' -d '{"chat_id": "1991174783", "text": "[SUCCESS] Ukata api build success!", "disable_notification": false}' "https://api.telegram.org/bot7859816771:AAGUKuWDBCk36Qqzu8anbKtVp_atZnEqZbE/sendMessage"
+curl -X POST -H "Content-Type:application/json" -d "{\"chat_id\":\"1991174783\",\"text\":\"[SUCCESS] Ukata api build success!\",\"disable_notification\":false}" "https://api.telegram.org/bot7859816771:AAGUKuWDBCk36Qqzu8anbKtVp_atZnEqZbE/sendMessage"
