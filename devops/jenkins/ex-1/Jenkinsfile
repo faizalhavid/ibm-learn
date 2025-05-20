@@ -16,6 +16,13 @@ pipeline {
             // steps are the commands that will be executed in the stage
             // steps are the main part of the stage, if any step fails, the stage will fail and the pipeline will stop
             steps {
+                // Script Instruction
+                // script is used to run a block of code in the pipeline
+                script{
+                    for (int i = 0; i < 10; i++) {
+                        echo "Hello World ${i}"
+                    }
+                }
                 echo 'Building...'
                 // sleep(5)
                 sh("cd devops/jenkins/spring-project ; chmod +x mvnw ;  ./mvnw clean compile package")

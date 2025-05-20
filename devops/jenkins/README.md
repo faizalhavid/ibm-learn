@@ -112,3 +112,7 @@ list of post actions:
 - `changed`: This block will be executed if the pipeline or stage changes its status (e.g., from success to failure).
 - `aborted`: This block will be executed if the pipeline or stage is aborted.
 - `cleanup`: This block will be executed
+
+### Script
+
+The `script` directive allows you to write Groovy code within the pipeline. It is useful for executing complex logic, conditionals, and loops that cannot be easily expressed using the declarative syntax. The `script` block can be used within stages or as a standalone block in the pipeline.
