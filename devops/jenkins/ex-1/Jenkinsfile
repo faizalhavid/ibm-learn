@@ -6,8 +6,12 @@ pipeline {
     //     MY_ENV_VAR = 'my_value'
     // }
 
+    // Credential Instruction
+    // credentials are used to set credentials for the pipeline
+
     environment {
        AUTHOR = 'John Doe'
+       APP = credentials('credential_test')
     } 
 
 
@@ -55,7 +59,12 @@ pipeline {
                 echo 'Building...'
                 // sleep(5)
                 sh("cd devops/jenkins/spring-project ; chmod +x mvnw ;  ./mvnw clean compile package")
+                //  we can call the environment variable in the pipeline
                 echo "Build completed! By $AUTHOR"
+                //  we can call the global variable in the pipeline
+                echo "Job $env.JOB_NAME"
+                echo "Build number $APP.USR"
+                echo "Build number $APP.PWD"
             }
         }
         stage('Test') {

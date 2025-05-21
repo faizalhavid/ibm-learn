@@ -116,3 +116,123 @@ list of post actions:
 ### Script
 
 The `script` directive allows you to write Groovy code within the pipeline. It is useful for executing complex logic, conditionals, and loops that cannot be easily expressed using the declarative syntax. The `script` block can be used within stages or as a standalone block in the pipeline.
+
+### Jenkins Variables
+
+Jenkins pipelines support the use of both global and local variables to manage data and control flow during pipeline execution.
+
+#### Global Variables
+
+Jenkins provides a set of built-in global variables that are accessible throughout the pipeline. These variables offer access to Jenkins features and runtime information:
+
+- **`env`**: Accesses environment variables. You can read or set environment variables using this variable.
+- **`params`**: Accesses pipeline parameters. Use this to read values of parameters defined for the pipeline.
+- **`currentBuild`**: Provides information about the current build, such as its status, duration, and more.
+
+For a comprehensive list of global variables, refer to the [Jenkins documentation](https://www.jenkins.io/doc/book/pipeline/syntax/#global-variables).
+
+#### Local Variables
+
+Local variables can be defined within a pipeline or stage using the `def` keyword. These variables are scoped to the block in which they are declared and are useful for storing temporary values or results during pipeline execution.
+
+Example:
+
+```groovy
+pipeline {
+    agent any
+    environment {
+        MY_ENV_VAR = 'Hello, World!'
+    }
+    stages {
+        stage('Build') {
+            steps {
+                script {
+                    def buildNumber = env.BUILD_NUMBER
+                    echo "Building version ${buildNumber}..."
+                    echo "Environment variable: ${MY_ENV_VAR}"
+                }
+            }
+        }
+    }
+}
+```
+
+In this example, `env.BUILD_NUMBER` is a global variable, while `buildNumber` is a local variable scoped to the `script` block.
+
+#### Credentials
+
+Jenkins provides a secure way to manage sensitive information, such as passwords, API tokens, and SSH keys, using the Credentials plugin. You can store credentials in Jenkins and access them securely within your pipeline.
+To use credentials in a Jenkins pipeline, you can use the `withCredentials` or `credentials` directive. The `withCredentials` directive allows you to wrap a block of code with the specified credentials, making them available only within that block. The `credentials` directive is used to access credentials directly without wrapping them in a block.
+
+```groovy
+pipeline {
+    agent any
+    environment {
+        MY_SECRET = credentials('my-secret-id')
+    }
+    stages {
+        stage('Build') {
+            steps {
+                script {
+                    // the jenkins will notify you if we use string interpolation, the secret will be visible in the logs
+                    echo "Using secret: $MY_SECRET"
+                    // ootherwise, the secret will be unvisible in the logs if we use it directly
+                    echo "Using secret: ${MY_SECRET}"
+
+                    withCredentials([string(credentialsId: 'my-secret-token', variable: 'TOKEN')
+                    ]) {
+                        echo "Using secret token: ${TOKEN}"
+                        // Use the TOKEN variable in your build steps
+                    }
+                }
+            }
+        }
+    }
+}
+```
+
+### Options
+
+The `options` directive allows you to specify various options for the pipeline or a specific stage. Options can include timeouts, retry attempts, and other settings that control the behavior of the pipeline.
+Some common options include:
+
+- `timeout`: Specifies a timeout for the pipeline or stage. If the execution exceeds the specified time, it will be aborted.
+- `retry`: Specifies the number of times to retry a stage if it fails. This is useful for handling transient errors or flaky tests.
+- `disableConcurrentBuilds`: Prevents concurrent builds of the same pipeline. This is useful for ensuring that only one instance of a pipeline runs at a time.
+- `timestamps`: Adds timestamps to the console output for better tracking of when each step was executed.
+- `ansiColor`: Enables ANSI color support in the console output. This is useful for improving the readability of logs.
+- `lock`: Acquires a lock on a resource before executing the pipeline or stage. This is useful for preventing concurrent access to shared resources.
+- `buildDiscarder`: Configures the build discarder strategy for the pipeline. This allows you to specify how many builds to keep and when to discard old builds.
+- `skipDefaultCheckout`: Skips the default checkout step for the pipeline. This is useful if you want to manage the checkout process manually.
+
+for complete list of options, refer to the [Jenkins documentation](https://www.jenkins.io/doc/book/pipeline/syntax/#options).
+
+Example of using options in a Jenkins pipeline:
+
+```groovy
+pipeline {
+    agent any
+    options {
+        timeout(time: 30, unit: 'MINUTES')
+        retry(3)
+        disableConcurrentBuilds()
+        timestamps()
+    }
+    stages {
+        stage('Build') {
+            steps {
+                echo 'Building...'
+                sh 'make build'
+            }
+        }
+        stage('Test') {
+            steps {
+                echo 'Testing...'
+                sh 'make test'
+            }
+        }
+    }
+}
+```
+
+In this example, the pipeline has a timeout of 30 minutes, will retry each stage up to 3 times if it fails, and will disable concurrent builds. Additionally, timestamps will be added to the console output.
