@@ -127,6 +127,9 @@ pipeline {
                 }
             }
             steps {
+                when {
+                    expression { return params.IS_TEST }
+                }
                 echo 'Testing...'
                 // sleep(5)
                 sh("cd devops/jenkins/spring-project ; chmod +x mvnw ;  ./mvnw test")
@@ -138,6 +141,8 @@ pipeline {
                 echo 'Deploying...'
                 sleep(5)
                 echo 'Deploy completed!'
+                echo "Job run by ${params.NAME}, with ${params.CHOICE} notification"
+                echo "Message: ${params.TEXT}"
             }
         }
     }
