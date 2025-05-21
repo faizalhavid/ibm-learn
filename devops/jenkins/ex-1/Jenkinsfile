@@ -126,10 +126,10 @@ pipeline {
                     label "wsl || linux && debian"
                 }
             }
+            when {
+                expression { return params.IS_TEST }
+            }
             steps {
-                when {
-                    expression { return params.IS_TEST }
-                }
                 echo 'Testing...'
                 // sleep(5)
                 sh("cd devops/jenkins/spring-project ; chmod +x mvnw ;  ./mvnw test")
