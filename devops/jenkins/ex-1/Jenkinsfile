@@ -1,5 +1,16 @@
 pipeline {
 
+    // Environment Instruction
+    // environment is used to set environment variables for the pipeline
+    // environment {
+    //     MY_ENV_VAR = 'my_value'
+    // }
+
+    environment {
+       AUTHOR = 'John Doe'
+    } 
+
+
     //  Agent Instruction
     //agent any
     // agent {
@@ -44,7 +55,7 @@ pipeline {
                 echo 'Building...'
                 // sleep(5)
                 sh("cd devops/jenkins/spring-project ; chmod +x mvnw ;  ./mvnw clean compile package")
-                echo 'Build completed!'
+                echo 'Build completed! By ${AUTHOR}'
             }
         }
         stage('Test') {
