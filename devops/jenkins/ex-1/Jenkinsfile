@@ -11,7 +11,7 @@ pipeline {
 
     environment {
        AUTHOR = 'John Doe'
-       APP = credentials('credential_test')
+    //    APP = credentials('credential_test')
     } 
 
 
@@ -35,7 +35,7 @@ pipeline {
         // disableConcurrentBuilds is used to disable concurrent builds
         disableConcurrentBuilds()
         // buildDiscarder is used to set the number of builds to keep
-        buildDiscarder(logRotator(numToKeepStr: '5'))
+        buildDiscarder(logRotator(numToKeepStr: '1', daysToKeepStr: '3'))
         // timeout is used to set the timeout for the pipeline
         timeout(time: 2, unit: 'MINUTES')
         // for complete list of options, you can see in doc https://www.jenkins.io/doc/book/pipeline/syntax/#options
