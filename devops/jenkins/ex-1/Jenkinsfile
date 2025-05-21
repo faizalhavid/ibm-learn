@@ -55,7 +55,7 @@ pipeline {
                 echo 'Building...'
                 // sleep(5)
                 sh("cd devops/jenkins/spring-project ; chmod +x mvnw ;  ./mvnw clean compile package")
-                echo 'Build completed! By ${AUTHOR}'
+                echo "Build completed! By $AUTHOR"
             }
         }
         stage('Test') {
