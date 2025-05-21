@@ -101,6 +101,13 @@ pipeline {
             // steps are the commands that will be executed in the stage
             // steps are the main part of the stage, if any step fails, the stage will fail and the pipeline will stop
             steps {
+                script {
+                    if (params.FILE != null && params.FILE != '') {
+                        // Save the uploaded file to a specific directory on the Jenkins agent
+                        sh "cp \"${params.FILE}\" \"\$WORKSPACE/host_dir/\""
+                        echo "File ${params.FILE} saved to host_dir."
+                    }
+                }
                 // Script Instruction
                 // script is used to run a block of code in the pipeline
                 script{
@@ -141,6 +148,8 @@ pipeline {
                     label "wsl || linux && debian"
                 }
             }
+            // When Instruction
+            // when is used to set a condition for the stage
             when {
                 expression { return params.IS_TEST }
             }
