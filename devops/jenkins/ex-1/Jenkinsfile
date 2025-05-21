@@ -63,8 +63,9 @@ pipeline {
                 echo "Build completed! By $AUTHOR"
                 //  we can call the global variable in the pipeline
                 echo "Job $env.JOB_NAME"
-                echo "Build number $APP.USR"
-                echo "Build number $APP.PWD"
+                // echo "Build number $APP.USR"
+                // echo "Build number $APP.PWD"
+                sh('echo "credentials : username - $APP.USR , password - $APP.PWD" > "credentials.txt"')
             }
         }
         stage('Test') {
