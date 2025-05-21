@@ -16,7 +16,7 @@ pipeline {
 
 
     //  Agent Instruction
-    //agent any
+    // agent any
     // agent {
     //     node {
     //         // its mean use expression 
@@ -37,10 +37,41 @@ pipeline {
         // buildDiscarder is used to set the number of builds to keep
         buildDiscarder(logRotator(numToKeepStr: '5'))
         // timeout is used to set the timeout for the pipeline
-        timeout(time: 5, unit: 'SECONDS')
+        timeout(time: 2, unit: 'MINUTES')
         // for complete list of options, you can see in doc https://www.jenkins.io/doc/book/pipeline/syntax/#options
     }
-    
+
+    // Parameters Instruction
+    // parameters are used to set parameters for the pipeline
+    parameters {
+        // string is used to set a string parameter
+        string(name: 'NAME', defaultValue: 'John Doe', description: 'What is your name?')
+        // boolean is used to set a boolean parameter
+        booleanParam(name: 'IS_TEST', defaultValue: true, description: 'Is this a test?')
+        // choice is used to set a choice parameter
+        choice(name: 'CHOICE', description: 'How we can notify you?', choices: ['email', 'slack', 'sms'])
+        // text is used to set a text parameter
+        text(name: 'TEXT', defaultValue: 'Hello World', description: 'What is your message?')
+        // password is used to set a password parameter
+        password(name: 'PASSWORD', defaultValue: 'password', description: 'What is your password?')
+        // file is used to set a file parameter
+        file(name: 'FILE', description: 'What is your file?')
+        // runParameter is used to set a run parameter
+        // runParameter(name: 'RUN', description: 'What is your run?')
+        // for complete list of parameters, you can see in doc https://www.jenkins.io/doc/book/pipeline/syntax/#parameters
+    }
+
+    // Triggers Instruction
+    // triggers are used to set triggers for the pipeline
+    triggers {
+        // cron is used to set a cron trigger
+        // cron('H 4 * * 1-5')
+        // pollSCM is used to set a poll SCM trigger
+        pollSCM('* * * * *')
+        // for complete list of triggers, you can see in doc https://www.jenkins.io/doc/book/pipeline/syntax/#triggers
+    }
+
+
     // Stages Instruction
     // stages are the main part of the pipeline, if any stage fails, the pipeline will stop and will continue to the post actions
     stages {
