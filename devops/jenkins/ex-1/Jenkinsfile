@@ -88,7 +88,7 @@ pipeline {
             input {
                 message "Can we build the project?"
                 ok "Yes"
-                submitter "admin"
+                submitter "admin, job_manager"
                 // we can set params for the input step
             }
             agent {
