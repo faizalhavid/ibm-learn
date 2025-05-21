@@ -68,6 +68,12 @@ pipeline {
         // cron('H 4 * * 1-5')
         // pollSCM is used to set a poll SCM trigger
         pollSCM('* * * * *')
+        // upstream is used to set an upstream trigger
+        // upstream(upstreamProjects: 'my-upstream-project', threshold: hudson.model.Result.SUCCESS)
+        // githubPush is used to set a github push trigger
+        // githubPush()
+        // gitlab is used to set a gitlab trigger
+        // gitlab(triggerOnPush: true, triggerOnMergeRequest: true, triggerOnPipelineSchedule: true, triggerOnNoteRequest: true
         // for complete list of triggers, you can see in doc https://www.jenkins.io/doc/book/pipeline/syntax/#triggers
     }
 
@@ -76,6 +82,15 @@ pipeline {
     // stages are the main part of the pipeline, if any stage fails, the pipeline will stop and will continue to the post actions
     stages {
         stage('Build') {
+            // Input Instruction
+            // input is used to set an input step for the pipeline
+            // input message is used to set the message for the input step
+            input {
+                message "Can we build the project?"
+                ok "Yes"
+                submitter "admin"
+                // we can set params for the input step
+            }
             agent {
                 node {
                     // its mean use expression 
