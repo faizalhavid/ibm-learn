@@ -25,6 +25,21 @@ pipeline {
     // }
     // if agent set the none, we can set each stage with different agent
     agent none
+
+    //  Options Instruction
+    options {
+        // timeout is used to set the timeout for the pipeline
+        // timeout(time: 5, unit: 'MINUTES')
+        // timestamps is used to add timestamps to the logs
+        timestamps()
+        // disableConcurrentBuilds is used to disable concurrent builds
+        disableConcurrentBuilds()
+        // buildDiscarder is used to set the number of builds to keep
+        buildDiscarder(logRotator(numToKeepStr: '5'))
+        // timeout is used to set the timeout for the pipeline
+        timeout(time: 5, unit: 'SECONDS')
+        // for complete list of options, you can see in doc https://www.jenkins.io/doc/book/pipeline/syntax/#options
+    }
     
     // Stages Instruction
     // stages are the main part of the pipeline, if any stage fails, the pipeline will stop and will continue to the post actions
@@ -63,14 +78,14 @@ pipeline {
                 echo "Build completed! By $AUTHOR"
                 //  we can call the global variable in the pipeline
                 echo "Job $env.JOB_NAME"
-                withCredentials([usernamePassword(credentialsId: 'credential_test', passwordVariable: 'APP_PWD', usernameVariable: 'APP_USR')]) {
-                    echo "Build number $APP_USR"
-                    echo "Build number $APP_PWD"
-                    sh('echo "withCredentials : username - $APP_USR , password - $APP_PWD" > "credentials2.txt"')
-                }
-                echo "Build number $APP_USR"
-                echo "Build number $APP_PWD"
-                sh('echo "credentials : username - $APP_USR , password - $APP.PWD" > "credentials.txt"')
+                // withCredentials([usernamePassword(credentialsId: 'credential_test', passwordVariable: 'APP_PWD', usernameVariable: 'APP_USR')]) {
+                //     echo "Build number $APP_USR"
+                //     echo "Build number $APP_PWD"
+                //     sh('echo "withCredentials : username - $APP_USR , password - $APP_PWD" > "credentials2.txt"')
+                // }
+                // echo "Build number $APP_USR"
+                // echo "Build number $APP_PWD"
+                // sh('echo "credentials : username - $APP_USR , password - $APP.PWD" > "credentials.txt"')
             }
         }
         stage('Test') {
