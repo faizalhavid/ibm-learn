@@ -67,7 +67,7 @@ pipeline {
         // cron is used to set a cron trigger
         // cron('H 4 * * 1-5')
         // pollSCM is used to set a poll SCM trigger
-        pollSCM('* * * * *')
+        // pollSCM('* * * * *')
         // upstream is used to set an upstream trigger
         // upstream(upstreamProjects: 'my-upstream-project', threshold: hudson.model.Result.SUCCESS)
         // githubPush is used to set a github push trigger
@@ -169,6 +169,115 @@ pipeline {
                 echo "Message: ${params.TEXT}"
             }
         }
+        
+        // Sequential Stage
+        // we can set the stages to run sequentially, if any stage fails, the pipeline will stop
+        stage('Sequential') {
+            parallel {
+                stage('Stage 1') {
+                    steps {
+                        echo 'Stage 1...'
+                        sleep(5)
+                        echo 'Stage 1 completed!'
+                    }
+                }
+                stage('Stage 2') {
+                    steps {
+                        echo 'Stage 2...'
+                        sleep(5)
+                        echo 'Stage 2 completed!'
+                    }
+                }
+            }
+        }
+        // Parallel Stage
+        // we can set the stages to run in parallel, if any stage fails, the pipeline will stop
+        stage('Parallel') {
+            failFast true
+            parallel {
+                stage('Stage 1') {
+                    agent {
+                        node {
+                            // its mean use expression 
+                            label "wsl || linux && debian"
+                        }
+                    }
+                    steps {
+                        echo 'Stage 1...'
+                        sleep(5)
+                        echo 'Stage 1 completed!'
+                    }
+                }
+                stage('Stage 2') {
+                    agent {
+                        node {
+                            // its mean use expression 
+                            label "wsl || linux && debian"
+                        }
+                    }
+                    steps {
+                        echo 'Stage 2...'
+                        sleep(5)
+                        echo 'Stage 2 completed!'
+                    }
+                }
+            }
+        }
+
+        // Matrix Stage
+        // we can set the stages to run in matrix, if any stage fails, the pipeline will stop
+        stage('Matrix') {
+            matrix {
+                axes {
+                    axis {
+                        name 'OS'
+                        values 'linux', 'windows', 'mac'
+                    }
+                    axis {
+                        name 'ARC'
+                        values '86', '64', '32'
+                    }
+                }
+                exludes {
+                    exlude {
+                        axis {
+                            name 'OS'
+                            values  'mac'
+                        }
+                        axis {
+                            name 'ARC'
+                            values '32'
+                        }
+                    }
+                }
+                stages {
+                    stage('Build') {
+                        steps {
+                            echo "Building on ${OS} ${ARC}..."
+                            sleep(5)
+                            echo "Build completed on ${OS} ${ARC}!"
+                        }
+                    }
+                }
+            }
+        }
+        // Input Stage
+        // we can set the stages to run in input, if any stage fails, the pipeline will stop
+        stage('Input') {
+            steps {
+                script {
+                    // input is used to set an input step for the pipeline
+                    // input message is used to set the message for the input step
+                    input message: 'Can we deploy the project?', ok: 'Yes'
+                }
+                echo 'Deploying...'
+                sleep(5)
+                echo 'Deploy completed!'
+            }
+        }
+
+
+
     }
 
     // Post Actions Instruction

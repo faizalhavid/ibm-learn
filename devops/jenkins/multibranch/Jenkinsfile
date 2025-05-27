@@ -1,0 +1,6 @@
+pipeline{
+    agent{
+        label "wsl && (linux || debian)"
+    }
+    stages{}
+}

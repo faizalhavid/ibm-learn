@@ -162,7 +162,7 @@ In this example, `env.BUILD_NUMBER` is a global variable, while `buildNumber` is
 #### Credentials
 
 Jenkins provides a secure way to manage sensitive information, such as passwords, API tokens, and SSH keys, using the Credentials plugin. You can store credentials in Jenkins and access them securely within your pipeline.
-To use credentials in a Jenkins pipeline, you can use the `withCredentials` or `credentials` directive. The `withCredentials` directive allows you to wrap a block of code with the specified credentials, making them available only within that block. The `credentials` directive is used to access credentials directly without wrapping them in a block.
+To use credentials in a Jenkins pipeline, you can use the `withCredentials` (credentials plugin binding) or `credentials` directive. The `withCredentials` directive allows you to wrap a block of code with the specified credentials, making them available only within that block. The `credentials` directive is used to access credentials directly without wrapping them in a block.
 
 ```groovy
 pipeline {
