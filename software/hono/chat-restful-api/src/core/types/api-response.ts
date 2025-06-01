@@ -13,7 +13,7 @@ export interface BaseApiResponse<T = any> {
 export interface ErrorResponse {
     success: false;
     error: {
-        code: string;
+        code: string | number;
         message: string;
         details?: any;
     };
