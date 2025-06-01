@@ -10,7 +10,7 @@ A simple RESTful API for user management.
 export interface User {
   id: string;
   username: string;
-  name: string;
+  email?: string;
   password?: string; 
 }
 ```

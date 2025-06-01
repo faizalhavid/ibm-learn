@@ -13,3 +13,142 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+/* model BaseModel {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime? 
+
+  isDeleted Boolean  @default(false)
+} */
+
+model User   {
+  id        String      @id @default(cuid())
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  deletedAt DateTime? 
+  isDeleted Boolean     @default(false)
+  
+  username  String      @unique @db.VarChar(100)
+  email     String      @unique @db.VarChar(255)
+  password  String      @db.VarChar(255)
+  profile   Profile?
+  token     String?     @db.VarChar(255) 
+  lastLogin DateTime?   @default(now())
+  isActive  Boolean     @default(true)
+
+  sentMessages     Message[] @relation("SentMessages")
+  receivedMessages Message[] @relation("ReceivedMessages")
+  chatRoom         ChatRoom[]
+  chatRoomMembers  ChatRoomMember[]
+
+  @@map("users")
+  @@index([username], name: "idx_user_username")
+  @@index([email], name: "idx_user_email")
+}
+
+model Profile {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String   @unique
+  firstName String   @db.VarChar(100)
+  lastName  String   @db.VarChar(100)
+  avatar    String?  @db.VarChar(255) // URL to the avatar image
+  bioId     String?  @unique
+  bio       Biodata? @relation(fields: [bioId], references: [id], onDelete: Cascade)
+
+  @@map("profiles")
+  @@index([userId], name: "idx_profile_user_id")
+  @@index([bioId], name: "idx_profile_bio_id")
+}
+
+model Biodata {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  birthDate DateTime
+  gender   String   @db.VarChar(10)
+  phone    String   @db.VarChar(20)
+  address  String   @db.VarChar(255)
+
+  Profile Profile[]
+  @@map("biodata")
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime? 
+  isDeleted Boolean  @default(false)
+  senderId  String
+  receiverId String
+  content   String   @db.Text
+
+  sender    User     @relation("SentMessages", fields: [senderId], references: [id])
+  receiver  User     @relation("ReceivedMessages", fields: [receiverId], references: [id])
+  chatRooms ChatRoomMessage[]
+
+  @@map("messages")
+  @@index([senderId], name: "idx_message_sender_id")
+  @@index([receiverId], name: "idx_message_receiver_id")
+}
+
+model ChatRoom {
+  id          String           @id @default(cuid())
+  name        String?          @db.VarChar(255) 
+  isGroup     Boolean          @default(false)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  owenerId    String
+  owner       User             @relation(fields: [owenerId], references: [id])
+  messages  ChatRoomMessage[]
+  members     ChatRoomMember[]
+
+  @@map("chat_rooms")
+  @@index([owenerId], name: "idx_chatroom_owner_id")
+  @@index([name], name: "idx_chatroom_name")
+  @@unique([name, owenerId], name: "unique_chatroom_name_owner")
+}
+
+model ChatRoomMember {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime? 
+  isDeleted Boolean  @default(false)
+
+  userId    String
+  chatRoomId String
+
+  user      User     @relation(fields: [userId], references: [id])
+  chatRoom  ChatRoom @relation(fields: [chatRoomId], references: [id])
+
+  @@map("chat_room_members")
+  @@unique([userId, chatRoomId], name: "unique_user_chatroom")
+}
+
+model ChatRoomMessage {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime? 
+  isDeleted Boolean  @default(false)
+
+  chatRoomId String
+  messageId  String
+
+  chatRoom   ChatRoom @relation(fields: [chatRoomId], references: [id])
+  message    Message  @relation(fields: [messageId], references: [id])
+
+  @@map("chat_room_messages")
+  @@unique([chatRoomId, messageId], name: "unique_chatroom_message")
+}
+
+
+

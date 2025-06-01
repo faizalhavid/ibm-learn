@@ -10,7 +10,10 @@ A simple RESTful API for managing chat rooms.
 export interface ChatRoom {
   id: string;
   name: string;
-  memberIds: string[]; // Array of User IDs
+  description?: string;
+  ownerId: string;
+  memberIds: string[]; 
+  messages?: Message[];
   createdAt: string;
 }
 ```

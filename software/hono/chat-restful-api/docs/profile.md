@@ -9,8 +9,8 @@ A simple RESTful API for user profile management.
 ```typescript
 export interface Profile {
   id: string;
-  userId: string;
-  bio?: string;
+  user: User;
+  bio?: Biodata;
   avatarUrl?: string;
   location?: string;
 }
