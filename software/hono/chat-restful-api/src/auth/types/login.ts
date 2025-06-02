@@ -10,6 +10,8 @@ export type LoginRequest = (
 );
 
 export interface LoginResponse {
-    token: TokenPublic;
+    // Todo Create a Table for Tokens and then use that here
+    // token: TokenPublic;
+    token: string;
     user: UserPublic;
 }

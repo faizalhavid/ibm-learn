@@ -8,13 +8,13 @@ export const authController = new Hono();
 
 authController.post("/login", async (c) => {
     const request = await c.req.json();
-    const response = await AuthService.login(request);
-    const result: BaseApiResponse = {
+    const result = await AuthService.login(request);
+    const response: BaseApiResponse = {
         success: true,
         message: "Login successful",
-        data: response,
+        data: result,
     };
-    return c.json(result);
+    return c.json(response);
 });
 
 authController.post("/register", async (c) => {
@@ -31,13 +31,13 @@ authController.post("/register", async (c) => {
 });
 
 
-authController.get("/getProfile", async (c) => {
-    const token = c.req.header("Authorization");
-    const response = await AuthService.getProfile(token);
-    const result: BaseApiResponse = {
-        success: true,
-        message: "Profile retrieved successfully",
-        data: response,
-    };
-    return c.json(result);
-});
+// authController.get("/getProfile", async (c) => {
+//     const token = c.req.header("Authorization");
+//     const response = await AuthService.getProfile(token);
+//     const result: BaseApiResponse = {
+//         success: true,
+//         message: "Profile retrieved successfully",
+//         data: response,
+//     };
+//     return c.json(result);
+// });

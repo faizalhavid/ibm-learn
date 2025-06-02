@@ -5,8 +5,9 @@
     "jsxImportSource": "hono/jsx",
     "baseUrl": ".",
     "paths": {
-      "@validations/*": ["src/core/validations/*"],
-      "@types/*": ["src/core/types/*"],
-    }
+      "@/*": ["./src/*"],
+      "@validations/*": ["./src/core/validations/*"],
+      "@types/*": ["./src/core/types/*"],
+    },
   }
 }

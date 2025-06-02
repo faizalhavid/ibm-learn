@@ -11,22 +11,6 @@ import { TokenUsage } from "../types/token";
 export class AuthService {
     private static userRepository = prismaClient.user;
 
-    static getProfile(token?: string): Promise<UserPublic | null> {
-        if (!token) {
-            throw new HTTPException(401, {
-                message: "Unauthorized",
-            });
-        }
-        return this.userRepository.findFirst({
-            where: {
-                token: token
-            },
-        }).then(user => {
-            if (!user) return null;
-            const { password, token, ...userPublic } = user;
-            return userPublic as UserPublic;
-        });
-    }
 
     static async login(req: LoginRequest): Promise<LoginResponse> {
         req = AuthValidation.LOGIN.parse(req);
@@ -56,13 +40,8 @@ export class AuthService {
         });
 
         const response: LoginResponse = {
-            token: {
-                token,
-                expiresAt: new Date(Date.now() + 60 * 60 * 1000),
-                userId: user.id,
-                usedFor: TokenUsage.Login
-            },
-            user: user as UserPublic
+            token,
+            user: UserPublic.fromUser(user)
         };
 
         return response;
@@ -71,31 +50,42 @@ export class AuthService {
     static async register(req: RegisterRequest): Promise<RegisterResponse> {
         req = AuthValidation.REGISTER.parse(req);
 
-        const existingUser = await this.userRepository.findFirst({
+        const exists = await this.userRepository.findFirst({
             where: {
-                OR: [
-                    { email: req.email },
-                    { username: req.username }
-                ]
+                OR: [{ email: req.email }, { username: req.username }]
             }
         });
-
-        if (existingUser) {
-            throw new HTTPException(409, {
-                message: "User already exists",
-            });
+        if (exists) {
+            throw new HTTPException(409, { message: "User already exists" });
         }
 
-        req.password = await Bun.password.hash(req.password, { algorithm: "bcrypt", cost: 10 });
-        const newUser = await this.userRepository.create({
+        const user = await this.userRepository.create({
             data: {
                 username: req.username,
                 email: req.email,
-                password: req.password
+                password: await Bun.password.hash(req.password, { algorithm: "bcrypt", cost: 10 })
+            },
+        });
+
+        const profile = await prismaClient.profile.create({
+            data: {
+                userId: user.id,
+                firstName: "",
+                lastName: "",
+                avatar: ""
+            },
+        });
+
+        const biodata = await prismaClient.biodata.create({
+            data: {
+                Profile: { connect: { id: profile.id } },
+                birthDate: Date.now().toString(),
+                gender: "",
+                phone: "",
+                address: "",
             }
         });
-        return newUser;
-
+        return RegisterResponse.fromUserAndProfile(UserPublic.fromUser(user), { ...profile, bio: biodata });
     }
 
     static logout(ctx: Context): string | number {

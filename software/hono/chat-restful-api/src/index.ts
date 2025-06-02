@@ -3,11 +3,12 @@ import { userController } from './user/controllers/user-controller'
 import { authController } from './auth/controllers/auth-controller';
 import { HTTPException } from 'hono/http-exception';
 import { ZodError } from 'zod';
-import { error } from 'winston';
+import { profileController } from './user/controllers/profile-controller';
+import { UserService } from './user/services/user-service';
+import { HonoContext } from '@types/hono-context';
 
-const app = new Hono()
-
-
+const app = new Hono<{ Variables: HonoContext }>();
+const publicRoutes = ['/auth', '/']
 
 
 app.get('/', (c) => {
@@ -16,8 +17,19 @@ app.get('/', (c) => {
 
 app.route('/users', userController);
 app.route('/auth', authController);
+app.route('/profile', profileController);
 
-
+app.use(async (c, next) => {
+  const token = c.req.header('Authorization');
+  const currentPath = c.req.path;
+  const isPublicRoute = publicRoutes.some(route => currentPath.startsWith(route));
+  if (!isPublicRoute && !token) {
+    throw new HTTPException(401, { message: 'Unauthorized: Token is required for this route' });
+  }
+  const authenticatedUser = await UserService.getUser(token);
+  c.set('authenticatedUser', authenticatedUser);
+  return next();
+});
 
 app.onError((err, c) => {
 
