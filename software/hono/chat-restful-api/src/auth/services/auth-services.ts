@@ -3,58 +3,102 @@ import { LoginRequest, LoginResponse } from "../types/login";
 import { AuthValidation } from "../validations/auth-validations";
 import { prismaClient } from "../../core/database";
 import { HTTPException } from "hono/http-exception";
-import { BaseApiResponse, ErrorResponse } from "../../core/types/api-response";
 import { UserPublic } from "../../user/types/user";
 import { User } from "../../generated/prisma";
-import { ApiErrorResponse } from "../../core/exceptions/ApiErrorResponse";
+import { RegisterRequest, RegisterResponse } from "../types/register";
+import { TokenUsage } from "../types/token";
 
 export class AuthService {
-    private userRepository = prismaClient.user;
+    private static userRepository = prismaClient.user;
 
-    async login(req: LoginRequest): Promise<BaseApiResponse<LoginResponse>> {
+    static getProfile(token?: string): Promise<UserPublic | null> {
+        if (!token) {
+            throw new HTTPException(401, {
+                message: "Unauthorized",
+            });
+        }
+        return this.userRepository.findFirst({
+            where: {
+                token: token
+            },
+        }).then(user => {
+            if (!user) return null;
+            const { password, token, ...userPublic } = user;
+            return userPublic as UserPublic;
+        });
+    }
+
+    static async login(req: LoginRequest): Promise<LoginResponse> {
         req = AuthValidation.LOGIN.parse(req);
-        this.userRepository.findUnique({
+        let user = await this.userRepository.findFirst({
             where: {
                 OR: [
                     { email: req.email },
                     { username: req.username }
                 ]
             }
-        }).then((user: User) => {
-            if (!user) {
-                throw new HTTPException(404, {
-                    res: Response.json(
-                        new ApiErrorResponse(
-                            400,
-                            "User not found",
-                            { email: req.email, username: req.username }
-                        ),
-                        { status: 404 }
-                    )
-                });
-            }
-            if (user.password !== req.password) {
-                throw new HTTPException(401, {
-                    res: Response.json(
-                        new ApiErrorResponse(
-                            401,
-                            "Invalid credentials",
-                            { email: req.email, username: req.username }
-                        ),
-                        { status: 401 }
-                    )
-                });
-            }
+        });
+        if (!user) {
+            throw new HTTPException(404, {
+                message: "User not found",
+            });
+        }
+        const isPasswordValid = await Bun.password.verify(req.password, user.password, 'bcrypt')
+        if (!isPasswordValid) {
+            throw new HTTPException(401, {
+                message: "Invalid credentials",
+            });
+        }
+        const token = crypto.randomUUID();
+        user = await this.userRepository.update({
+            where: { id: user.id },
+            data: { token }
+        });
 
-        })
-        throw new Error("Invalid credentials");
+        const response: LoginResponse = {
+            token: {
+                token,
+                expiresAt: new Date(Date.now() + 60 * 60 * 1000),
+                userId: user.id,
+                usedFor: TokenUsage.Login
+            },
+            user: user as UserPublic
+        };
+
+        return response;
     }
 
-    async register(username: string, password: string, email: string) {
-        return { id: "user-id", username, email };
+    static async register(req: RegisterRequest): Promise<RegisterResponse> {
+        req = AuthValidation.REGISTER.parse(req);
+
+        const existingUser = await this.userRepository.findFirst({
+            where: {
+                OR: [
+                    { email: req.email },
+                    { username: req.username }
+                ]
+            }
+        });
+
+        if (existingUser) {
+            throw new HTTPException(409, {
+                message: "User already exists",
+            });
+        }
+
+        req.password = await Bun.password.hash(req.password, { algorithm: "bcrypt", cost: 10 });
+        const newUser = await this.userRepository.create({
+            data: {
+                username: req.username,
+                email: req.email,
+                password: req.password
+            }
+        });
+        return newUser;
+
     }
 
-    async logout(ctx: Context) {
-        return { success: true };
+    static logout(ctx: Context): string | number {
+        return 2;
     }
 }

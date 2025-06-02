@@ -4,5 +4,4 @@ import { TokenPublic } from "./token";
 
 export interface RegisterRequest extends UserRequest { }
 export interface RegisterResponse extends UserPublic {
-    token: TokenPublic;
 }

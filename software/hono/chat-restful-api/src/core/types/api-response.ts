@@ -2,6 +2,7 @@
 export interface BaseApiResponse<T = any> {
     success: boolean;
     message?: string;
+    status?: number;
     data?: T;
     error?: {
         code: string;

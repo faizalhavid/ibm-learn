@@ -1,6 +1,43 @@
-import { Hono } from "hono";
+import { Env, Hono } from "hono";
+import { Schema } from "zod";
+import { AuthService } from "../services/auth-services";
+import { BaseApiResponse } from "@types/api-response";
 
 
+export const authController = new Hono();
+
+authController.post("/login", async (c) => {
+    const request = await c.req.json();
+    const response = await AuthService.login(request);
+    const result: BaseApiResponse = {
+        success: true,
+        message: "Login successful",
+        data: response,
+    };
+    return c.json(result);
+});
+
+authController.post("/register", async (c) => {
+    const request = await c.req.json();
+    const response = await AuthService.register(request);
+    const result: BaseApiResponse = {
+        success: true,
+        status: 201,
+        message: "Registration successful",
+        data: response,
+    };
+    c.status(201);
+    return c.json(result);
+});
 
 
-export const bioController = new Hono();
+authController.get("/getProfile", async (c) => {
+    const token = c.req.header("Authorization");
+    const response = await AuthService.getProfile(token);
+    const result: BaseApiResponse = {
+        success: true,
+        message: "Profile retrieved successfully",
+        data: response,
+    };
+    return c.json(result);
+});
