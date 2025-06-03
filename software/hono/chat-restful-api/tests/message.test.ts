@@ -1,22 +1,17 @@
 import { describe, it, expect, beforeEach, afterEach } from "bun:test";
-import { MessageTest, UserTest } from "./test-utils";
+import { MessageTest, usersTest, UserTest } from "./test-utils";
 import { PaginatedResponse } from "@/core/types/api-response";
 import { MessagePublic } from "@/message/types/message";
-
-const users = [
-    { id: 'id-test1', username: 'testuser', email: 'test@mail.com', token: 'test' },
-    { id: 'id-test2', username: 'testuser2', email: 'test2@mail.com', token: 'test2' }
-]
 
 
 describe('GET Message', () => {
     beforeEach(async () => {
-        await UserTest.create(users[0].username, users[0].email, users[0].token, users[0].id);
+        await UserTest.create(usersTest[0]);
     })
     it('should show all user messages', async () => {
         const response = await fetch('http://localhost:3000/messages', {
             method: 'GET',
-            headers: { 'Authorization': users[0].token }
+            headers: { 'Authorization': usersTest[0].token }
         });
         console.log('Get messages response status:', response);
         const body = await response.json();
@@ -29,28 +24,28 @@ describe('GET Message', () => {
     });
 
     afterEach(async () => {
-        await UserTest.delete(users[0].username);
+        await UserTest.delete(usersTest[0].username);
     });
 });
 
 describe('POST Message', () => {
     beforeEach(async () => {
-        await UserTest.create(users[0].username, users[0].email, users[0].token, users[0].id);
-        await UserTest.create(users[1].username, users[1].email, users[1].token, users[1].id);
+        await UserTest.create(usersTest[0]);
+        await UserTest.create(usersTest[1]);
 
-        await MessageTest.clearAllMessages(users[0].id);
-        await MessageTest.clearAllMessages(users[1].id);
+        await MessageTest.clearAllMessages(usersTest[0].id);
+        await MessageTest.clearAllMessages(usersTest[1].id);
     })
     it('should create a new message', async () => {
         const response = await fetch('http://localhost:3000/messages', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': users[0].token
+                'Authorization': usersTest[0].token
             },
             body: JSON.stringify({
                 content: 'Hello, this is a test message!',
-                receiverId: users[1].id
+                receiverId: usersTest[1].id
             })
         });
         console.log('Post message response status:', response);
@@ -78,7 +73,7 @@ describe('POST Message', () => {
             expect(wsResponse.data?.items.length).toBe(1);
             expect(wsResponse.data?.items[0].content).toBe('Hello, this is a test message!');
             expect(wsResponse.data?.items[0].senderId).toBeDefined();
-            expect(wsResponse.data?.items[0].receiverId).toBe(users[1].id!);
+            expect(wsResponse.data?.items[0].receiverId).toBe(usersTest[1].id!);
 
             messageReceived = true;
             ws.close();
@@ -88,11 +83,11 @@ describe('POST Message', () => {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': users[0].token
+                'Authorization': usersTest[0].token
             },
             body: JSON.stringify({
                 content: 'Hello, this is a test message!',
-                receiverId: `${users[1].id}`
+                receiverId: `${usersTest[1].id}`
             })
         });
         const body = await response.json();
@@ -110,10 +105,10 @@ describe('POST Message', () => {
     });
 
     afterEach(async () => {
-        await UserTest.delete(users[0].username);
-        await UserTest.delete(users[1].username);
+        await UserTest.delete(usersTest[0].username);
+        await UserTest.delete(usersTest[1].username);
 
-        await MessageTest.clearAllMessages(users[0].id);
-        await MessageTest.clearAllMessages(users[1].id);
+        await MessageTest.clearAllMessages(usersTest[0].id);
+        await MessageTest.clearAllMessages(usersTest[1].id);
     });
 });

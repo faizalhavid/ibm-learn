@@ -1,24 +1,24 @@
 import { Context } from "hono";
 import { LoginRequest, LoginResponse } from "../types/login";
-import { AuthValidation } from "../validations/auth-validations";
 import { prismaClient } from "../../core/database";
 import { HTTPException } from "hono/http-exception";
 import { UserPublic } from "../../user/types/user";
 import { User } from "../../generated/prisma";
 import { RegisterRequest, RegisterResponse } from "../types/register";
 import { TokenUsage } from "../types/token";
+import { loginSchema, registerSchema } from "../auth-validations";
 
 export class AuthService {
     private static userRepository = prismaClient.user;
 
 
     static async login(req: LoginRequest): Promise<LoginResponse> {
-        req = AuthValidation.LOGIN.parse(req);
+        const validatedLoginData = loginSchema.parse(req);
         let user = await this.userRepository.findFirst({
             where: {
                 OR: [
-                    { email: req.email },
-                    { username: req.username }
+                    { email: validatedLoginData.email },
+                    { username: validatedLoginData.username }
                 ]
             }
         });
@@ -27,7 +27,7 @@ export class AuthService {
                 message: "User not found",
             });
         }
-        const isPasswordValid = await Bun.password.verify(req.password, user.password, 'bcrypt')
+        const isPasswordValid = await Bun.password.verify(validatedLoginData.password, user.password, 'bcrypt')
         if (!isPasswordValid) {
             throw new HTTPException(401, {
                 message: "Invalid credentials",
@@ -48,11 +48,11 @@ export class AuthService {
     }
 
     static async register(req: RegisterRequest): Promise<RegisterResponse> {
-        req = AuthValidation.REGISTER.parse(req);
+        const validatedRegisterData = registerSchema.parse(req);
 
         const exists = await this.userRepository.findFirst({
             where: {
-                OR: [{ email: req.email }, { username: req.username }]
+                OR: [{ email: validatedRegisterData.email }, { username: validatedRegisterData.username }]
             }
         });
         if (exists) {
@@ -61,9 +61,9 @@ export class AuthService {
 
         const user = await this.userRepository.create({
             data: {
-                username: req.username,
-                email: req.email,
-                password: await Bun.password.hash(req.password, { algorithm: "bcrypt", cost: 10 })
+                username: validatedRegisterData.username!,
+                email: validatedRegisterData.email!,
+                password: await Bun.password.hash(validatedRegisterData.password, { algorithm: "bcrypt", cost: 10 })
             },
         });
 

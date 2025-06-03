@@ -1,16 +1,12 @@
 import { describe, it, expect, afterEach, beforeEach } from 'bun:test';
 import { logger } from 'src/core/logging';
-import { UserTest } from './test-utils';
+import { usersTest, UserTest } from './test-utils';
 
-const users = [
-    { username: 'testuser', email: 'test@mail.com', token: 'test' },
-    { username: 'testuser2', email: 'test2@mail.com', token: 'test2' }
-]
 
 describe('POST REGISTER', () => {
 
     afterEach(async () => {
-        await UserTest.delete(users[0].username);
+        await UserTest.delete(usersTest[0].username);
     })
 
     it('should reject register when user request is invalid', async () => {
@@ -33,15 +29,15 @@ describe('POST REGISTER', () => {
     });
 
     it('should reject register when user already exists', async () => {
-        await UserTest.create(users[0].username, users[0].email, users[0].token);
+        await UserTest.create(usersTest[0]);
         const response = await fetch('http://localhost:3000/auth/register', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                username: 'testuser',
-                email: 'test@gmail.com',
-                password: 'pAssword123@',
-                confirmPassword: 'pAssword123@'
+                username: usersTest[0].username,
+                email: usersTest[0].email,
+                password: usersTest[0].password,
+                confirmPassword: usersTest[0].password
             })
         });
 
@@ -54,23 +50,23 @@ describe('POST REGISTER', () => {
     });
 
     it('should register a new user successfully', async () => {
-        await UserTest.delete(users[0].username); // Ensure user does not exist before test
+        await UserTest.delete(usersTest[0].username); // Ensure user does not exist before test
         const response = await fetch('http://localhost:3000/auth/register', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                username: 'testuser',
-                email: 'test@mail.com',
-                password: 'pAssword123@',
-                confirmPassword: 'pAssword123@',
+                username: usersTest[0].username,
+                email: usersTest[0].email,
+                password: usersTest[0].password,
+                confirmPassword: usersTest[0].password,
             })
         });
         const body = await response.json();
         logger.debug('Register response:', body);
         expect(response.status).toBe(201);
         expect(body.data).toBeDefined();
-        expect(body.data.username).toBe('testuser');
-        expect(body.data.email).toBe('test@mail.com');
+        expect(body.data.username).toBe(usersTest[0].username);
+        expect(body.data.email).toBe(usersTest[0].email);
         expect(body.data).toHaveProperty('id');
         expect(body.data).toHaveProperty('createdAt');
         expect(body.data).toHaveProperty('updatedAt');
@@ -82,11 +78,11 @@ describe('POST REGISTER', () => {
 describe('POST LOGIN', () => {
 
     beforeEach(async () => {
-        await UserTest.create(users[0].username, users[0].email, users[0].token);
+        await UserTest.create(usersTest[0]);
     })
 
     afterEach(async () => {
-        await UserTest.delete(users[0].username);
+        await UserTest.delete(usersTest[0].username);
     })
 
     it('should reject login when user email is invalid', async () => {
@@ -96,7 +92,7 @@ describe('POST LOGIN', () => {
             body: JSON.stringify({
                 username: 'juju',
                 email: 'juju@mail.com',
-                password: 'pAssword123@'
+                password: usersTest[0].password
             })
         });
 
@@ -112,8 +108,8 @@ describe('POST LOGIN', () => {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                username: 'testuser',
-                email: 'test@gmail.com',
+                username: usersTest[0].username,
+                email: usersTest[0].email,
                 password: 'invalid-password'
             })
         });
@@ -132,7 +128,7 @@ describe('POST LOGIN', () => {
             body: JSON.stringify({
                 username: 'nonexistentuser',
                 email: 'nonexistentuser@example.com',
-                password: 'pAssword123@'
+                password: usersTest[0].password
             })
         });
 

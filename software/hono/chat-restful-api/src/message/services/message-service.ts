@@ -1,8 +1,8 @@
 import { prismaClient } from "@/core/database";
 import { MessageRequest, MessagePublic } from "../types/message";
-import { MessageValidations } from "../validations";
 import { send } from "process";
 import { UserPublic } from "@/user/types/user";
+import { messageSchema } from "../message-validations";
 
 
 
@@ -10,7 +10,7 @@ export class MessageService {
     private static messageRepository = prismaClient.message;
 
     static async sendMessage(data: MessageRequest, senderId: string): Promise<MessagePublic> {
-        data = MessageValidations.MESSAGE.parse(data);
+        data = messageSchema.parse(data);
         const sender = await prismaClient.user.findFirst({
             where: { id: senderId },
             include: { profile: true }

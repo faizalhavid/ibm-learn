@@ -1,14 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it } from "bun:test";
-import { UserTest } from "./test-utils";
+import { usersTest, UserTest } from "./test-utils";
 
-const users = [
-    { username: 'testuser', email: 'test@mail.com', token: 'test' },
-    { username: 'testuser2', email: 'test2@mail.com', token: 'test2' }
-]
 
 describe('Message WebSocket Controller', () => {
     beforeEach(async () => {
-        await UserTest.create(users[0].username, users[0].email, users[0].token);
+        await UserTest.create(usersTest[0]);
     })
     it('should handle WebSocket connections', async () => {
         await new Promise<void>((resolve, reject) => {
@@ -39,6 +35,6 @@ describe('Message WebSocket Controller', () => {
         };
     });
     afterEach(async () => {
-        await UserTest.delete(users[0].username);
+        await UserTest.delete(usersTest[0].username);
     });
 });

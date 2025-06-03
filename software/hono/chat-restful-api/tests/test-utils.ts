@@ -1,11 +1,34 @@
 import { prismaClient } from "@/core/database"
 import { ProfilePublic } from "@/user/types/profile"
+interface UserTestProps {
+    id: string;
+    username: string;
+    email: string;
+    token: string;
+    password: string;
+    profile?: {
+        firstName: string;
+        lastName: string;
+        avatar?: string;
+    }
+}
+
+const userProfiles: UserTestProps['profile'][] = [
+    { firstName: 'Test', lastName: 'User', avatar: 'https://example.com/avatar.jpg' },
+    { firstName: 'Test2', lastName: 'User2', avatar: 'https://example.com/avatar2.jpg' }
+]
+export const usersTest: UserTestProps[] = [
+    { id: 'id-test1', username: 'testuser', email: 'test@mail.com', token: 'token-test1', password: 'pAssword123@', profile: userProfiles[0] },
+    { id: 'id-test2', username: 'testuser2', email: 'test2@mail.com', token: 'token-test2', password: 'pAssword123@', profile: userProfiles[1] }
+]
+
 
 export class UserTest {
     static delete2() {
         throw new Error("Method not implemented.")
     }
-    static async create(username: string, email: string, token: string, id?: string) {
+    static async create(props: UserTestProps) {
+        let { id, username, email, token } = props;
         if (!id) {
             id = crypto.randomUUID();
         }
@@ -23,7 +46,6 @@ export class UserTest {
         })
     }
 
-
     static async delete(username: string) {
         await prismaClient.user.deleteMany({
             where: {
@@ -31,18 +53,22 @@ export class UserTest {
             }
         })
     }
-
 }
 
 export class ProfileTest {
-    static async create() {
+    static async create(props: UserTestProps = usersTest[0]) {
+        const { username, profile } = props;
+        if (!profile) {
+            throw new Error("Profile data is required to create a profile");
+        }
+        const { firstName, lastName } = profile;
         await prismaClient.profile.create({
             data: {
-                firstName: "Test",
-                lastName: "User",
+                firstName: firstName,
+                lastName: lastName,
                 avatar: "https://example.com/avatar.jpg",
                 user: {
-                    connect: { username: "testuser" }
+                    connect: { username: username }
                 }
             }
         })
@@ -58,34 +84,6 @@ export class ProfileTest {
         })
     }
 
-    static async deleteAll() {
-        await prismaClient.profile.deleteMany({
-            where: {
-                user: {
-                    username: "testuser"
-                }
-            }
-        })
-        await prismaClient.user.deleteMany({
-            where: {
-                username: "testuser"
-            }
-        })
-    }
-
-    static async get(): Promise<ProfilePublic> {
-        const profile = await prismaClient.profile.findFirstOrThrow({
-            where: {
-                user: {
-                    username: "test"
-                }
-            },
-            include: {
-                user: true,
-            }
-        })
-        return ProfilePublic.fromProfile(profile);
-    }
 }
 
 export class MessageTest {

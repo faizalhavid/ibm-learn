@@ -1,16 +1,12 @@
 import { describe, it, expect, afterEach, beforeEach } from 'bun:test';
-import { ProfileTest, UserTest } from './test-utils';
+import { ProfileTest, usersTest, UserTest } from './test-utils';
 import { logger } from '@/core/logging';
 
-const users = [
-    { username: 'testuser', email: 'test@mail.com', token: 'test' },
-    { username: 'testuser2', email: 'test2@mail.com', token: 'test2' }
-]
 
 describe('PATCH PROFILE', () => {
     beforeEach(async () => {
-        await UserTest.create(users[0].username, users[0].email, users[0].token);
-        await ProfileTest.create();
+        await UserTest.create(usersTest[0]);
+        await ProfileTest.create(usersTest[0]);
     })
 
 
@@ -28,7 +24,7 @@ describe('PATCH PROFILE', () => {
         const response = await fetch('http://localhost:3000/profile', {
             method: 'PATCH',
             headers: {
-                'Authorization': 'test'
+                'Authorization': usersTest[0].token,
             },
             body: JSON.stringify({
                 firstName: ''
@@ -45,7 +41,7 @@ describe('PATCH PROFILE', () => {
         const response = await fetch('http://localhost:3000/profile', {
             method: 'PATCH',
             headers: {
-                'Authorization': 'test',
+                'Authorization': usersTest[0].token,
             },
             body: JSON.stringify({
                 firstName: 'John'
@@ -63,7 +59,7 @@ describe('PATCH PROFILE', () => {
         const response = await fetch('http://localhost:3000/profile', {
             method: 'PATCH',
             headers: {
-                'Authorization': 'test'
+                'Authorization': usersTest[0].token,
             },
             body: JSON.stringify({
                 firstName: 'John',
@@ -82,22 +78,22 @@ describe('PATCH PROFILE', () => {
 
 
     afterEach(async () => {
-        await ProfileTest.delete(users[0].username);
-        await UserTest.delete(users[0].username);
+        await ProfileTest.delete(usersTest[0].username);
+        await UserTest.delete(usersTest[0].username);
     })
 });
 
 describe('GET PROFILE', () => {
     beforeEach(async () => {
-        await UserTest.create(users[0].username, users[0].email, users[0].token);
-        await ProfileTest.create();
+        await UserTest.create(usersTest[0]);
+        await ProfileTest.create(usersTest[0]);
     })
 
     it('should return profile data', async () => {
         const response = await fetch('http://localhost:3000/profile', {
             method: 'GET',
             headers: {
-                'Authorization': 'test'
+                'Authorization': usersTest[0].token,
             }
         });
 
@@ -111,8 +107,8 @@ describe('GET PROFILE', () => {
     });
 
     afterEach(async () => {
-        await ProfileTest.deleteAll();
-        await UserTest.delete(users[0].username);
+        await ProfileTest.delete(usersTest[0].username);
+        await UserTest.delete(usersTest[0].username);
     })
 
 });

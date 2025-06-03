@@ -1,14 +1,14 @@
 import { HTTPException } from "hono/http-exception";
 import { prismaClient } from "src/core/database";
 import { UserPublic } from "../types/user";
-import { AuthValidation } from "src/auth/validations/auth-validations";
+import { tokenSchema } from "@/auth/auth-validations";
 
 export class UserService {
     private static userRepository = prismaClient.user;
 
     static async getUser(token?: string): Promise<UserPublic> {
         console.log("Fetching user with token:", token);
-        const parsedToken = AuthValidation.TOKEN.parse(token);
+        const parsedToken = tokenSchema.parse(token);
         const user = await this.userRepository.findFirst({ where: { token: parsedToken } });
         if (!user) throw new HTTPException(403, { message: "Invalid token or user not found" });
         return UserPublic.fromUser(user);
