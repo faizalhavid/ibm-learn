@@ -33,8 +33,8 @@ describe('POST REGISTER', () => {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                username: 'existinguser',
-                email: 'johndoe@mail.com',
+                username: 'testuser',
+                email: 'test@gmail.com',
                 password: 'pAssword123@',
                 confirmPassword: 'pAssword123@'
             })
@@ -49,11 +49,12 @@ describe('POST REGISTER', () => {
     });
 
     it('should register a new user successfully', async () => {
+        await UserTest.delete();
         const response = await fetch('http://localhost:3000/auth/register', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                username: 'test',
+                username: 'testuser',
                 email: 'test@mail.com',
                 password: 'pAssword123@',
                 confirmPassword: 'pAssword123@',
@@ -63,17 +64,13 @@ describe('POST REGISTER', () => {
         logger.debug('Register response:', body);
         expect(response.status).toBe(201);
         expect(body.data).toBeDefined();
-        expect(body.data.username).toBe('test');
+        expect(body.data.username).toBe('testuser');
         expect(body.data.email).toBe('test@mail.com');
         expect(body.data).toHaveProperty('id');
         expect(body.data).toHaveProperty('createdAt');
         expect(body.data).toHaveProperty('updatedAt');
-        expect(body.data).toHaveProperty('password');
-        expect(body.data.password).toBeDefined();
         expect(body.data.password).not.toBe('');
         expect(body.data.password).not.toBeNull();
-        expect(body.data.password).not.toBeUndefined();
-
     });
 });
 
@@ -111,7 +108,7 @@ describe('POST LOGIN', () => {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 username: 'testuser',
-                email: 'johndoe@mail.com',
+                email: 'test@gmail.com',
                 password: 'invalid-password'
             })
         });

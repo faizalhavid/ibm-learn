@@ -79,7 +79,7 @@ export class AuthService {
         const biodata = await prismaClient.biodata.create({
             data: {
                 Profile: { connect: { id: profile.id } },
-                birthDate: Date.now().toString(),
+                birthDate: new Date().toISOString(),
                 gender: "",
                 phone: "",
                 address: "",

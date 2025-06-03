@@ -5,7 +5,7 @@ export class UserTest {
     static async create() {
         await prismaClient.user.create({
             data: {
-                username: "test",
+                username: "testuser",
                 email: "test@gmail.com",
                 password: await Bun.password.hash("pAssword123@", {
                     algorithm: "bcrypt",
@@ -19,7 +19,7 @@ export class UserTest {
     static async delete() {
         await prismaClient.user.deleteMany({
             where: {
-                username: "test"
+                username: "testuser"
             }
         })
     }
@@ -44,7 +44,7 @@ export class ProfileTest {
         await prismaClient.profile.deleteMany({
             where: {
                 user: {
-                    username: "test"
+                    username: "testuser"
                 }
             }
         })
@@ -54,13 +54,13 @@ export class ProfileTest {
         await prismaClient.profile.deleteMany({
             where: {
                 user: {
-                    username: "test"
+                    username: "testuser"
                 }
             }
         })
         await prismaClient.user.deleteMany({
             where: {
-                username: "test"
+                username: "testuser"
             }
         })
     }
