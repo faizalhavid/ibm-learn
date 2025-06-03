@@ -34,7 +34,7 @@ export class ProfileTest {
                 lastName: "User",
                 avatar: "https://example.com/avatar.jpg",
                 user: {
-                    connect: { username: "test" }
+                    connect: { username: "testuser" }
                 }
             }
         })
@@ -44,7 +44,7 @@ export class ProfileTest {
         await prismaClient.profile.deleteMany({
             where: {
                 user: {
-                    username: "testuser"
+                    username: "test"
                 }
             }
         })

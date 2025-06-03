@@ -7,10 +7,10 @@ export class UserService {
     private static userRepository = prismaClient.user;
 
     static async getUser(token?: string): Promise<UserPublic> {
+        console.log("Fetching user with token:", token);
         const parsedToken = AuthValidation.TOKEN.parse(token);
         const user = await this.userRepository.findFirst({ where: { token: parsedToken } });
         if (!user) throw new HTTPException(403, { message: "Invalid token or user not found" });
-
         return UserPublic.fromUser(user);
     }
     // static async updateUser(token: string, req: { firstName: string; lastName: string; avatar?: string }): Promise<UserPublic> {

@@ -8,26 +8,20 @@ import { UserService } from './user/services/user-service';
 import { HonoContext } from '@types/hono-context';
 
 const app = new Hono<{ Variables: HonoContext }>();
-const publicRoutes = ['/auth', '/']
-
-
-app.get('/', (c) => {
-  return c.text('Hello Hono!')
-})
-
-app.route('/users', userController);
-app.route('/auth', authController);
-app.route('/profile', profileController);
-
+const publicRoutes = ['/auth']
 app.use(async (c, next) => {
+  console.log('Middleware: Checking authentication');
   const token = c.req.header('Authorization');
   const currentPath = c.req.path;
   const isPublicRoute = publicRoutes.some(route => currentPath.startsWith(route));
+  console.log(`Current path: ${currentPath}, Is public route: ${isPublicRoute}, Token: ${token}`);
   if (!isPublicRoute && !token) {
     throw new HTTPException(401, { message: 'Unauthorized: Token is required for this route' });
   }
-  const authenticatedUser = await UserService.getUser(token);
-  c.set('authenticatedUser', authenticatedUser);
+  if (!isPublicRoute && token) {
+    const authenticatedUser = await UserService.getUser(token);
+    c.set('authenticatedUser', authenticatedUser);
+  }
   return next();
 });
 
@@ -59,5 +53,15 @@ app.onError((err, c) => {
     message: err.message || 'Internal Server Error'
   }, 500);
 });
+
+
+app.get('/', (c) => {
+  return c.text('Hello Hono!')
+})
+
+app.route('/users', userController);
+app.route('/auth', authController);
+app.route('/profile', profileController);
+
 
 export default app

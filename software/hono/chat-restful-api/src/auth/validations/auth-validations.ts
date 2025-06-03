@@ -37,7 +37,5 @@ export class AuthValidation {
         token: z.string().min(1, "Token is required")
     });
 
-    static readonly TOKEN: ZodType = z.object({
-        token: z.string().min(1, "Token is required"),
-    });
+    static readonly TOKEN: ZodType = z.string().min(1, "Token is required");
 }
