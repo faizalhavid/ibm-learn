@@ -2,24 +2,32 @@ import { prismaClient } from "@/core/database"
 import { ProfilePublic } from "@/user/types/profile"
 
 export class UserTest {
-    static async create() {
+    static delete2() {
+        throw new Error("Method not implemented.")
+    }
+    static async create(username: string, email: string, token: string, id?: string) {
+        if (!id) {
+            id = crypto.randomUUID();
+        }
         await prismaClient.user.create({
             data: {
-                username: "testuser",
-                email: "test@gmail.com",
+                id: id,
+                username: username,
+                email: email,
                 password: await Bun.password.hash("pAssword123@", {
                     algorithm: "bcrypt",
                     cost: 10
                 }),
-                token: "test"
+                token: token
             }
         })
     }
 
-    static async delete() {
+
+    static async delete(username: string) {
         await prismaClient.user.deleteMany({
             where: {
-                username: "testuser"
+                username: username
             }
         })
     }
@@ -40,11 +48,11 @@ export class ProfileTest {
         })
     }
 
-    static async delete() {
+    static async delete(username: string) {
         await prismaClient.profile.deleteMany({
             where: {
                 user: {
-                    username: "test"
+                    username: username
                 }
             }
         })
@@ -77,5 +85,18 @@ export class ProfileTest {
             }
         })
         return ProfilePublic.fromProfile(profile);
+    }
+}
+
+export class MessageTest {
+    static async clearAllMessages(userId: string) {
+        await prismaClient.message.deleteMany({
+            where: {
+                OR: [
+                    { senderId: userId },
+                    { receiverId: userId }
+                ]
+            }
+        });
     }
 }

@@ -6,7 +6,6 @@ import { AuthValidation } from "src/auth/validations/auth-validations";
 import { ProfileValidation } from "../validation/profile-validation";
 
 export class ProfileService {
-    private static userRepository = prismaClient.user;
     private static profileRepository = prismaClient.profile;
 
     static async getProfile(user: UserPublic): Promise<ProfilePublic> {

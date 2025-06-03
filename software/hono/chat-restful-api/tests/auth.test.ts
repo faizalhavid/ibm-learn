@@ -2,10 +2,15 @@ import { describe, it, expect, afterEach, beforeEach } from 'bun:test';
 import { logger } from 'src/core/logging';
 import { UserTest } from './test-utils';
 
+const users = [
+    { username: 'testuser', email: 'test@mail.com', token: 'test' },
+    { username: 'testuser2', email: 'test2@mail.com', token: 'test2' }
+]
+
 describe('POST REGISTER', () => {
 
     afterEach(async () => {
-        await UserTest.delete();
+        await UserTest.delete(users[0].username);
     })
 
     it('should reject register when user request is invalid', async () => {
@@ -28,7 +33,7 @@ describe('POST REGISTER', () => {
     });
 
     it('should reject register when user already exists', async () => {
-        await UserTest.create();
+        await UserTest.create(users[0].username, users[0].email, users[0].token);
         const response = await fetch('http://localhost:3000/auth/register', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -49,7 +54,7 @@ describe('POST REGISTER', () => {
     });
 
     it('should register a new user successfully', async () => {
-        await UserTest.delete();
+        await UserTest.delete(users[0].username); // Ensure user does not exist before test
         const response = await fetch('http://localhost:3000/auth/register', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -77,11 +82,11 @@ describe('POST REGISTER', () => {
 describe('POST LOGIN', () => {
 
     beforeEach(async () => {
-        await UserTest.create()
+        await UserTest.create(users[0].username, users[0].email, users[0].token);
     })
 
     afterEach(async () => {
-        await UserTest.delete()
+        await UserTest.delete(users[0].username);
     })
 
     it('should reject login when user email is invalid', async () => {
@@ -139,4 +144,3 @@ describe('POST LOGIN', () => {
         expect(body.errors).toContain('User not found');
     });
 });
-

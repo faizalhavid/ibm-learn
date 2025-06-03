@@ -1,0 +1,61 @@
+import { prismaClient } from "@/core/database";
+import { MessageRequest, MessagePublic } from "../types/message";
+import { MessageValidations } from "../validations";
+import { send } from "process";
+import { UserPublic } from "@/user/types/user";
+
+
+
+export class MessageService {
+    private static messageRepository = prismaClient.message;
+
+    static async sendMessage(data: MessageRequest, senderId: string): Promise<MessagePublic> {
+        data = MessageValidations.MESSAGE.parse(data);
+        const sender = await prismaClient.user.findFirst({
+            where: { id: senderId },
+            include: { profile: true }
+        });
+        if (!sender) {
+            throw new Error("Sender not found");
+        }
+        const receiver = await prismaClient.user.findFirst({
+            where: { id: data.receiverId },
+            include: { profile: true }
+        });
+        if (!receiver) {
+            throw new Error("Receiver not found");
+        }
+        if (sender.id === receiver.id) {
+            throw new Error("Sender and receiver cannot be the same");
+        }
+        const message = await this.messageRepository.create({
+            data: {
+                content: data.content,
+                senderId: sender.id,
+                receiverId: receiver.id
+            }
+        });
+        return MessagePublic.fromMessage(message);
+    }
+
+    static async getMessageById(messageId: string): Promise<MessagePublic> {
+        const message = await this.messageRepository.findUniqueOrThrow({
+            where: { id: messageId },
+            include: { sender: true, receiver: true }
+        });
+        return MessagePublic.fromMessage(message);
+    }
+
+    static async getMessages(user: UserPublic): Promise<MessagePublic[]> {
+        const messages = await this.messageRepository.findMany({
+            where: { OR: [{ senderId: user.id }, { receiverId: user.id }] },
+            orderBy: { createdAt: "asc" },
+            include: { sender: true, receiver: true }
+        });
+        return messages.map(MessagePublic.fromMessage);
+    }
+
+    static async deleteMessage(messageId: string): Promise<void> {
+        await this.messageRepository.delete({ where: { id: messageId } });
+    }
+}

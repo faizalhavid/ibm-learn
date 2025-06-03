@@ -2,9 +2,14 @@ import { describe, it, expect, afterEach, beforeEach } from 'bun:test';
 import { ProfileTest, UserTest } from './test-utils';
 import { logger } from '@/core/logging';
 
+const users = [
+    { username: 'testuser', email: 'test@mail.com', token: 'test' },
+    { username: 'testuser2', email: 'test2@mail.com', token: 'test2' }
+]
+
 describe('PATCH PROFILE', () => {
     beforeEach(async () => {
-        await UserTest.create();
+        await UserTest.create(users[0].username, users[0].email, users[0].token);
         await ProfileTest.create();
     })
 
@@ -77,14 +82,14 @@ describe('PATCH PROFILE', () => {
 
 
     afterEach(async () => {
-        await ProfileTest.delete();
-        await UserTest.delete();
+        await ProfileTest.delete(users[0].username);
+        await UserTest.delete(users[0].username);
     })
 });
 
 describe('GET PROFILE', () => {
     beforeEach(async () => {
-        await UserTest.create();
+        await UserTest.create(users[0].username, users[0].email, users[0].token);
         await ProfileTest.create();
     })
 
@@ -107,7 +112,7 @@ describe('GET PROFILE', () => {
 
     afterEach(async () => {
         await ProfileTest.deleteAll();
-        await UserTest.delete();
+        await UserTest.delete(users[0].username);
     })
 
 });

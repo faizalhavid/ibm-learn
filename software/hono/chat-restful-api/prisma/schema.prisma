@@ -90,8 +90,8 @@ model Message {
   receiverId String  @map("receiver_id")
   content   String   @db.Text
 
-  sender    User     @relation("SentMessages", fields: [senderId], references: [id])
-  receiver  User     @relation("ReceivedMessages", fields: [receiverId], references: [id])
+  sender    User     @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver  User     @relation("ReceivedMessages", fields: [receiverId], references: [id], onDelete: Cascade)
   chatRooms ChatRoomMessage[]
 
   @@map("messages")
@@ -106,7 +106,7 @@ model ChatRoom {
   createdAt   DateTime         @default(now()) @map("created_at")
   updatedAt   DateTime         @updatedAt @map("updated_at")
   ownerId    String           @map("owner_id")
-  owner       User             @relation(fields: [ownerId], references: [id])
+  owner       User             @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   messages  ChatRoomMessage[]
   members     ChatRoomMember[]
 
@@ -126,8 +126,8 @@ model ChatRoomMember {
   userId    String @map("user_id")
   chatRoomId String @map("chat_room_id")
 
-  user      User     @relation(fields: [userId], references: [id])
-  chatRoom  ChatRoom @relation(fields: [chatRoomId], references: [id])
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  chatRoom  ChatRoom @relation(fields: [chatRoomId], references: [id], onDelete: Cascade)
 
   @@map("chat_room_members")
   @@unique([userId, chatRoomId], name: "unique_user_chatroom")
@@ -143,8 +143,8 @@ model ChatRoomMessage {
   chatRoomId String @map("chat_room_id")
   messageId  String @map("message_id")
 
-  chatRoom   ChatRoom @relation(fields: [chatRoomId], references: [id])
-  message    Message  @relation(fields: [messageId], references: [id])
+  chatRoom   ChatRoom @relation(fields: [chatRoomId], references: [id], onDelete: Cascade)
+  message    Message  @relation(fields: [messageId], references: [id], onDelete: Cascade)
 
   @@map("chat_room_messages")
   @@unique([chatRoomId, messageId], name: "unique_chatroom_message")
