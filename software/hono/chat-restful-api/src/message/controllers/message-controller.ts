@@ -11,7 +11,7 @@ export const messagesController = new Hono<{ Variables: HonoContext }>();
 const topic = "messages";
 messagesController.get("/", async (c) => {
     const user = c.get("authenticatedUser");
-    const messages = await MessageService.getMessages(user);
+    const messages = await MessageService.getMessages(user.id);
 
     const page = 1;
     const pageSize = messages.length;
@@ -36,13 +36,26 @@ messagesController.get("/", async (c) => {
     return c.json(paginationResponse);
 });
 
+messagesController.get("/:id", async (c) => {
+    const user = c.get("authenticatedUser");
+    const messageId = c.req.param("id");
+    const message = await MessageService.getMessageById(messageId, user.id);
+
+    const response: BaseApiResponse = {
+        success: true,
+        message: "Message retrieved successfully",
+        data: message,
+    };
+    return c.json(response);
+});
+
 messagesController.post("/", async (c) => {
     const user = c.get("authenticatedUser");
 
     const request = await c.req.json();
     const result = await MessageService.sendMessage(request, user.id);
 
-    const broadcastPayload: WsBroadcastEvent<MessagePublic> = generateWSBroadcastPayload(result, WsEventName.MessageCreated);
+    const broadcastPayload = generateWSBroadcastPayload<MessagePublic>(result, WsEventName.MessageCreated);
 
     const response: BaseApiResponse = {
         success: true,
@@ -56,13 +69,13 @@ messagesController.post("/", async (c) => {
 messagesController.delete("/:id", async (c) => {
     const user = c.get("authenticatedUser");
     const messageId = c.req.param("id");
-
+    const broadcastPayload = generateWSBroadcastPayload<{ messageId: string; userId: string }>(
+        { messageId, userId: user.id },
+        WsEventName.MessageDeleted
+    );
     await MessageService.deleteMessage(messageId, user.id);
 
-    server.publish("messages", JSON.stringify({
-        event: "messageDeleted",
-        data: { messageId, userId: user.id }
-    }));
+    server.publish(topic, JSON.stringify(broadcastPayload));
 
     const response: BaseApiResponse = {
         success: true,
@@ -72,14 +85,16 @@ messagesController.delete("/:id", async (c) => {
     return c.json(response);
 })
 
-function generateWSBroadcastPayload(
-    data: MessagePublic,
+function generateWSBroadcastPayload<T>(
+    data: T,
     event: WsEventName
-): WsBroadcastEvent<MessagePublic> {
+): WsBroadcastEvent<T> {
+    // @ts-ignore
     return {
         event: event,
         timestamp: Date.now(),
-        senderId: data.senderId,
+        // @ts-ignore
+        senderId: (data as any).senderId,
         data: data,
         requestId: randomUUID(),
     };

@@ -38,17 +38,20 @@ export class MessageService {
         return MessagePublic.fromMessage(message);
     }
 
-    static async getMessageById(messageId: string): Promise<MessagePublic> {
+    static async getMessageById(messageId: string, userId: string): Promise<MessagePublic> {
         const message = await this.messageRepository.findUniqueOrThrow({
             where: { id: messageId },
             include: { sender: true, receiver: true }
         });
+        if (message.receiverId !== userId && message.senderId !== userId) {
+            throw new Error("Unauthorized");
+        }
         return MessagePublic.fromMessage(message);
     }
 
-    static async getMessages(user: UserPublic): Promise<MessagePublic[]> {
+    static async getMessages(userId: string): Promise<MessagePublic[]> {
         const messages = await this.messageRepository.findMany({
-            where: { OR: [{ senderId: user.id }, { receiverId: user.id }, { isDeletedBySender: false }, { isDeletedByReceiver: false }] },
+            where: { OR: [{ senderId: userId }, { receiverId: userId }, { isDeletedBySender: false }, { isDeletedByReceiver: false }] },
             orderBy: { createdAt: "asc" },
             include: { sender: true, receiver: true }
         });

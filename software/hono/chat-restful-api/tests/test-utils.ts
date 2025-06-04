@@ -101,6 +101,22 @@ export class ProfileTest {
 }
 
 export class MessageTest {
+    static async create(props: {
+        id: string;
+        content: string;
+        senderId: string;
+        receiverId: string;
+    }) {
+        const { id, content, senderId, receiverId } = props;
+        await prismaClient.message.create({
+            data: {
+                id: id,
+                content: content,
+                senderId: senderId,
+                receiverId: receiverId
+            }
+        });
+    }
     static async clearAllMessages(userId: string) {
         await prismaClient.message.deleteMany({
             where: {
