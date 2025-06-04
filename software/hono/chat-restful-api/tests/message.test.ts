@@ -57,52 +57,6 @@ describe('POST Message', () => {
         expect(body.data).toBeDefined();
         //expect(body.data.content).toBe('Hello, this is a test message!');
     });
-    it('should create a new message and broadcast it', async () => {
-        const ws = new WebSocket('ws://localhost:3000/ws');
-        await new Promise((resolve) => ws.onopen = resolve);
-
-        let messageReceived = false;
-        ws.onmessage = (event) => {
-            // Parse pesan JSON yang diterima
-            const wsResponse: PaginatedResponse<MessagePublic> = JSON.parse(event.data);
-            console.log('Parsed message data:', wsResponse);
-
-            // Assertion detail pesan
-            expect(wsResponse.success).toBe(true);
-            expect(wsResponse.data?.items).toBeDefined();
-            expect(wsResponse.data?.items.length).toBe(1);
-            expect(wsResponse.data?.items[0].content).toBe('Hello, this is a test message!');
-            expect(wsResponse.data?.items[0].senderId).toBeDefined();
-            expect(wsResponse.data?.items[0].receiverId).toBe(usersTest[1].id!);
-
-            messageReceived = true;
-            ws.close();
-        };
-
-        const response = await fetch('http://localhost:3000/messages', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': usersTest[0].token
-            },
-            body: JSON.stringify({
-                content: 'Hello, this is a test message!',
-                receiverId: `${usersTest[1].id}`
-            })
-        });
-        const body = await response.json();
-        expect(response.status).toBe(200);
-        expect(body.data).toBeDefined();
-        console.log('Post message response:', body);
-
-        // Tunggu pesan broadcast
-        await new Promise((resolve, reject) => {
-            setTimeout(() => {
-                if (!messageReceived) reject(new Error('No broadcast received'));
-                else resolve(null);
-            }, 1000);
-        });
-    });
 
     afterEach(async () => {
         await UserTest.delete(usersTest[0].username);

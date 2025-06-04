@@ -1,5 +1,7 @@
 import { prismaClient } from "@/core/database"
+import { WsBroadcastEvent, WsEventName } from "@/core/types/websocket-event";
 import { ProfilePublic } from "@/user/types/profile"
+import { randomUUID } from "crypto";
 interface UserTestProps {
     id: string;
     username: string;
@@ -17,11 +19,23 @@ const userProfiles: UserTestProps['profile'][] = [
     { firstName: 'Test', lastName: 'User', avatar: 'https://example.com/avatar.jpg' },
     { firstName: 'Test2', lastName: 'User2', avatar: 'https://example.com/avatar2.jpg' }
 ]
+
+
 export const usersTest: UserTestProps[] = [
     { id: 'id-test1', username: 'testuser', email: 'test@mail.com', token: 'token-test1', password: 'pAssword123@', profile: userProfiles[0] },
     { id: 'id-test2', username: 'testuser2', email: 'test2@mail.com', token: 'token-test2', password: 'pAssword123@', profile: userProfiles[1] }
 ]
 
+
+
+export function generateWSData(event: WsEventName, data: {},): WsBroadcastEvent {
+    return {
+        event: event,
+        data: data,
+        timestamp: Date.now(),
+        requestId: randomUUID()
+    };
+}
 
 export class UserTest {
     static delete2() {

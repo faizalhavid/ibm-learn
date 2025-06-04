@@ -6,7 +6,7 @@
 
 generator client {
   provider = "prisma-client-js"
-  //output   = "../src/generated/prisma"
+  output   = "../src/generated/prisma"
 }
 
 datasource db {
@@ -23,7 +23,7 @@ datasource db {
   isDeleted Boolean  @default(false)
 } */
 
-model User   {
+model User {
   id        String      @id @default(cuid())
   createdAt DateTime    @default(now()) @map("created_at")
   updatedAt DateTime    @updatedAt @map("updated_at")
@@ -40,8 +40,8 @@ model User   {
 
   sentMessages     Message[] @relation("SentMessages")
   receivedMessages Message[] @relation("ReceivedMessages")
-  chatRoom         ChatRoom[]
-  chatRoomMembers  ChatRoomMember[]
+  chatRoom         MessageGroups[]
+  chatRoomMembers  MessageGroupMembers[]
 
   @@map("users")
   @@index([username], name: "idx_user_username")
@@ -72,11 +72,12 @@ model Biodata {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   birthDate DateTime @map("birth_date")
-  gender   String   @db.VarChar(10) @map("gender")
-  phone    String   @db.VarChar(20) @map("phone")
-  address  String   @db.VarChar(255) @map("address")
+  gender    String   @db.VarChar(10) @map("gender")
+  phone     String   @db.VarChar(20) @map("phone")
+  address   String   @db.VarChar(255) @map("address")
 
   Profile Profile[]
+
   @@map("biodata")
 }
 
@@ -84,70 +85,72 @@ model Message {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
-  deletedAt DateTime?@map("deleted_at")
-  isDeleted Boolean  @default(false) @map("is_deleted")
+
   senderId  String   @map("sender_id")
+  isDeletedBySender Boolean @default(false) @map("is_deleted_by_sender")
   receiverId String  @map("receiver_id")
+  isDeletedByReceiver Boolean @default(false) @map("is_deleted_by_receiver")
+
   content   String   @db.Text
 
   sender    User     @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
   receiver  User     @relation("ReceivedMessages", fields: [receiverId], references: [id], onDelete: Cascade)
-  chatRooms ChatRoomMessage[]
+  chatRooms MessageGroupMessages[]
 
   @@map("messages")
   @@index([senderId], name: "idx_message_sender_id")
   @@index([receiverId], name: "idx_message_receiver_id")
 }
 
-model ChatRoom {
-  id          String           @id @default(cuid())
-  name        String?          @db.VarChar(255) 
-  isGroup     Boolean          @default(false) @map("is_group")
-  createdAt   DateTime         @default(now()) @map("created_at")
-  updatedAt   DateTime         @updatedAt @map("updated_at")
-  ownerId    String           @map("owner_id")
-  owner       User             @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  messages  ChatRoomMessage[]
-  members     ChatRoomMember[]
+model MessageGroups {
+  id          String                @id @default(cuid())
+  name        String?               @db.VarChar(255) 
+  createdAt   DateTime              @default(now()) @map("created_at")
+  updatedAt   DateTime              @updatedAt @map("updated_at")
+  
+  ownerId     String                @map("owner_id")
+  owner       User                  @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  messages    MessageGroupMessages[]
+  members     MessageGroupMembers[]
 
-  @@map("chat_rooms")
-  @@index([ownerId], name: "idx_chatroom_owner_id")
-  @@index([name], name: "idx_chatroom_name")
-  @@unique([name, ownerId], name: "unique_chatroom_name_owner")
+  @@map("message_groups")
+  @@index([ownerId], name: "idx_message_group_owner_id")
+  @@index([name], name: "idx_message_group_name")
+  @@unique([name, ownerId], name: "unique_message_group_name_owner")
 }
 
-model ChatRoomMember {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+model MessageGroupMembers {
+  id        String    @id @default(cuid())
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
   deletedAt DateTime? @map("deleted_at")
-  isDeleted Boolean  @default(false) @map("is_deleted")
+  isDeleted Boolean   @default(false) @map("is_deleted")
 
-  userId    String @map("user_id")
-  chatRoomId String @map("chat_room_id")
+  userId    String    @map("user_id")
+  messageGroupId String @map("message_group_id")
 
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  chatRoom  ChatRoom @relation(fields: [chatRoomId], references: [id], onDelete: Cascade)
+  messageGroup  MessageGroups @relation(fields: [messageGroupId], references: [id], onDelete: Cascade)
 
-  @@map("chat_room_members")
-  @@unique([userId, chatRoomId], name: "unique_user_chatroom")
+  @@map("message_group_members")
+  @@unique([userId, messageGroupId], name: "unique_user_message_group")
 }
 
-model ChatRoomMessage {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-  deletedAt DateTime? @map("deleted_at")
-  isDeleted Boolean  @default(false) @map("is_deleted")
+model MessageGroupMessages {
+  id            String   @id @default(cuid())
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+  deletedAt     DateTime? @map("deleted_at")
+  isDeleted     Boolean  @default(false) @map("is_deleted")
 
-  chatRoomId String @map("chat_room_id")
-  messageId  String @map("message_id")
+  messageGroupId String @map("message_group_id")
+  messageId     String @map("message_id")
 
-  chatRoom   ChatRoom @relation(fields: [chatRoomId], references: [id], onDelete: Cascade)
-  message    Message  @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  messageGroup  MessageGroups @relation(fields: [messageGroupId], references: [id], onDelete: Cascade)
+  message       Message  @relation(fields: [messageId], references: [id], onDelete: Cascade)
 
-  @@map("chat_room_messages")
-  @@unique([chatRoomId, messageId], name: "unique_chatroom_message")
+  @@map("message_group_messages")
+  @@unique([messageGroupId, messageId], name: "unique_message_group_message")
 }
 
 

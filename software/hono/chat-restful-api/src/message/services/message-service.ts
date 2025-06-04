@@ -48,14 +48,29 @@ export class MessageService {
 
     static async getMessages(user: UserPublic): Promise<MessagePublic[]> {
         const messages = await this.messageRepository.findMany({
-            where: { OR: [{ senderId: user.id }, { receiverId: user.id }] },
+            where: { OR: [{ senderId: user.id }, { receiverId: user.id }, { isDeletedBySender: false }, { isDeletedByReceiver: false }] },
             orderBy: { createdAt: "asc" },
             include: { sender: true, receiver: true }
         });
         return messages.map(MessagePublic.fromMessage);
     }
 
-    static async deleteMessage(messageId: string): Promise<void> {
-        await this.messageRepository.delete({ where: { id: messageId } });
+    static async deleteMessage(messageId: string, userId: string): Promise<void> {
+        const message = await this.messageRepository.findUniqueOrThrow({
+            where: { id: messageId },
+            include: { sender: true, receiver: true }
+        });
+        if (message.senderId === userId) {
+            await this.messageRepository.update({
+                where: { id: messageId },
+                data: { isDeletedBySender: true }
+            });
+        } else if (message.receiverId === userId) {
+            await this.messageRepository.update({
+                where: { id: messageId },
+                data: { isDeletedByReceiver: true }
+            });
+        }
     }
+
 }
