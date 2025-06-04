@@ -1,5 +1,5 @@
 import { prismaClient } from "@/core/database"
-import { WsBroadcastEvent, WsEventName } from "@/core/types/websocket-event";
+import { WsBroadcastEvent, WsEventName } from "@/core/types/websocket";
 import { ProfilePublic } from "@/user/types/profile"
 import { randomUUID } from "crypto";
 interface UserTestProps {
@@ -38,9 +38,7 @@ export function generateWSData(event: WsEventName, data: {},): WsBroadcastEvent 
 }
 
 export class UserTest {
-    static delete2() {
-        throw new Error("Method not implemented.")
-    }
+
     static async create(props: UserTestProps) {
         let { id, username, email, token } = props;
         if (!id) {
@@ -126,5 +124,37 @@ export class MessageTest {
                 ]
             }
         });
+    }
+}
+
+export class MessageGroupsTest {
+    static async create(props: {
+        id: string;
+        name: string;
+        ownerId: string;
+        memberIds: string[];
+    }) {
+        const { id, name, ownerId, memberIds: members } = props;
+        try {
+            await prismaClient.messageGroups.create({
+                data: {
+                    id: id,
+                    name: name,
+                    ownerId: ownerId,
+                    members: {
+                        create: members.map(userId => ({
+                            user: { connect: { id: userId } }
+                        }))
+                    }
+                }
+            });
+        } catch (err) {
+            console.error('Failed to create message group:', err);
+            throw err;
+        }
+    }
+
+    static async clearAllGroups() {
+        await prismaClient.messageGroups.deleteMany({});
     }
 }

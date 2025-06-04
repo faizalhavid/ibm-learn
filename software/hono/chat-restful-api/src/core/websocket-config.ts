@@ -1,7 +1,7 @@
 import { createBunWebSocket } from 'hono/bun';
 import { ServerWebSocket } from 'bun';
 import { Context } from 'hono';
-import { AppWSContext, WsBroadcastEvent, WsEventName, WsTopic } from './types/websocket-event';
+import { AppWSContext, WsBroadcastEvent, WsEventName, WsTopic } from './types/websocket';
 import { UserService } from '@/user/services/user-service';
 import { UserPublic } from '@/user/types/user';
 

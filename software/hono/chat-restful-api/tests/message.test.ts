@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach } from "bun:test";
 import { MessageTest, usersTest, UserTest } from "./test-utils";
 import { PaginatedResponse } from "@/core/types/api-response";
 import { MessagePublic } from "@/message/types/message";
-import { WsEventName } from "@/core/types/websocket-event";
+import { WsEventName } from "@/core/types/websocket";
 
 
 describe('GET Message', () => {

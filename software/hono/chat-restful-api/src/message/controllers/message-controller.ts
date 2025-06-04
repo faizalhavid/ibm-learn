@@ -4,7 +4,7 @@ import { MessageService } from "../services/message-service";
 import { BaseApiResponse, PaginatedResponse } from "@/core/types/api-response";
 import { MessagePublic } from "../types/message";
 import { HonoContext } from "@/core/types/hono-context";
-import { WsBroadcastEvent, WsEventName } from "@/core/types/websocket-event";
+import { WsBroadcastEvent, WsEventName } from "@/core/types/websocket";
 import { randomUUID } from "crypto";
 
 export const messagesController = new Hono<{ Variables: HonoContext }>();
