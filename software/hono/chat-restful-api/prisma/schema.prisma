@@ -41,8 +41,8 @@ model User {
 
   sentMessages     Message[]             @relation("SentMessages")
   receivedMessages Message[]             @relation("ReceivedMessages")
-  chatRoom         MessageGroups[]
-  chatRoomMembers  MessageGroupMembers[]
+  messageGroups    MessageGroups[]
+  messageGroupMembers  MessageGroupMembers[]
 
   @@index([username], name: "idx_user_username")
   @@index([email], name: "idx_user_email")
@@ -96,7 +96,7 @@ model Message {
 
   sender    User                   @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
   receiver  User                   @relation("ReceivedMessages", fields: [receiverId], references: [id], onDelete: Cascade)
-  chatRooms MessageGroupMessages[]
+  messageGroupMessages MessageGroupMessages[]
 
   @@index([senderId], name: "idx_message_sender_id")
   @@index([receiverId], name: "idx_message_receiver_id")
@@ -108,6 +108,8 @@ model MessageGroups {
   name      String?  @unique @db.VarChar(255)
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+  isDeleted Boolean  @default(false) @map("is_deleted")
 
   ownerId  String                 @map("owner_id")
   owner    User                   @relation(fields: [ownerId], references: [id], onDelete: Cascade)

@@ -1,15 +1,16 @@
 import { HonoContext } from "@/core/types/hono-context";
 import { Hono } from "hono";
-import { MessageGroupService } from "../services/message-group-service";
+import { MessageGroupService } from "../services/message-groups-service";
 import { BaseApiResponse, PaginatedResponse } from "@/core/types/api-response";
-import { MessageGroupsPublic } from "../types/message-group";
+import { MessageGroupsPublic } from "../types/message-groups";
 import { MessagePublic } from "../types/message";
 
 export const messageGroupsController = new Hono<{ Variables: HonoContext }>();
 
+// list group user
 messageGroupsController.get("/", async (c) => {
     const user = c.get("authenticatedUser");
-    const result = await MessageGroupService.getUserGroups(user.id);
+    const result = await MessageGroupService.getUserMessageGroups(user.id);
     const response: PaginatedResponse<MessageGroupsPublic> = {
         success: true,
         message: "User groups retrieved successfully",
@@ -28,10 +29,11 @@ messageGroupsController.get("/", async (c) => {
     return c.json(response);
 });
 
+// get group by id
 messageGroupsController.get("/:id", async (c) => {
     const user = c.get("authenticatedUser");
     const groupId = c.req.param("id");
-    const group = await MessageGroupService.getGroupById(groupId, user.id);
+    const group = await MessageGroupService.getMessageGroupsById(groupId, user.id);
     // TODO : Need to handle the case where the group is not found or user is not a member
     // if (!group) {
     //     return c.json({
@@ -50,6 +52,7 @@ messageGroupsController.get("/:id", async (c) => {
     return c.json(response);
 });
 
+// create group
 messageGroupsController.post("/", async (c) => {
     const user = c.get("authenticatedUser");
     const request = await c.req.json();
@@ -59,9 +62,10 @@ messageGroupsController.post("/", async (c) => {
         message: "Group created successfully",
         data: result,
     };
-    return c.json(response);
+    return c.json(response, 201);
 });
 
+// update group
 messageGroupsController.patch("/:id", async (c) => {
     const user = c.get("authenticatedUser");
     const groupId = c.req.param("id");
@@ -73,6 +77,19 @@ messageGroupsController.patch("/:id", async (c) => {
         data: result,
     };
     return c.json(response);
+});
+
+// delete member from group
+messageGroupsController.delete("/:id/members/:memberId", async (c) => {
+    const user = c.get("authenticatedUser");
+    const groupId = c.req.param("id");
+    const memberId = c.req.param("memberId");
+    await MessageGroupService.deleteMemberFromGroup(groupId, user.id, memberId);
+    const response: BaseApiResponse = {
+        success: true,
+        message: "Member removed from group successfully",
+    };
+    return c.json(response, 201);
 });
 
 messageGroupsController.delete("/:id", async (c) => {

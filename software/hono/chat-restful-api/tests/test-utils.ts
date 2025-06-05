@@ -17,13 +17,15 @@ interface UserTestProps {
 
 const userProfiles: UserTestProps['profile'][] = [
     { firstName: 'Test', lastName: 'User', avatar: 'https://example.com/avatar.jpg' },
-    { firstName: 'Test2', lastName: 'User2', avatar: 'https://example.com/avatar2.jpg' }
+    { firstName: 'Test2', lastName: 'User2', avatar: 'https://example.com/avatar2.jpg' },
+    { firstName: 'Test3', lastName: 'User3', avatar: 'https://example.com/avatar3.jpg' }
 ]
 
 
 export const usersTest: UserTestProps[] = [
     { id: 'id-test1', username: 'testuser', email: 'test@mail.com', token: 'token-test1', password: 'pAssword123@', profile: userProfiles[0] },
-    { id: 'id-test2', username: 'testuser2', email: 'test2@mail.com', token: 'token-test2', password: 'pAssword123@', profile: userProfiles[1] }
+    { id: 'id-test2', username: 'testuser2', email: 'test2@mail.com', token: 'token-test2', password: 'pAssword123@', profile: userProfiles[1] },
+    { id: 'id-test3', username: 'testuser3', email: 'test3@mail.com', token: 'token-test3', password: 'pAssword123@', profile: userProfiles[2] }
 ]
 
 

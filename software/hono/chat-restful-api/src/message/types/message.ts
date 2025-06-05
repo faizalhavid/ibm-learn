@@ -1,5 +1,5 @@
 import { Message, MessageGroupMessages } from "../../generated/prisma";
-import { MessageGroupsPublic } from "./message-group";
+import { MessageGroupsPublic } from "./message-groups";
 
 export interface MessageRequest {
     content: string;

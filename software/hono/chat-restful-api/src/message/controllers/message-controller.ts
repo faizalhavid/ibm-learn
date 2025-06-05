@@ -9,6 +9,8 @@ import { randomUUID } from "crypto";
 
 export const messagesController = new Hono<{ Variables: HonoContext }>();
 const topic = "messages";
+
+
 messagesController.get("/", async (c) => {
     const user = c.get("authenticatedUser");
     const messages = await MessageService.getMessages(user.id);

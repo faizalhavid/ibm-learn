@@ -1,7 +1,7 @@
 import { prismaClient } from "@/core/database";
 import { PaginatedResponse } from "@/core/types/api-response";
 import { MessageGroupsMessagesRequest, MessagePublic } from "../types/message";
-import { MessageGroupsPublic, MessageGroupsRequest } from "../types/message-group";
+import { MessageGroupsPublic, MessageGroupsRequest } from "../types/message-groups";
 import { messageGroupsSchema, messageSchema } from "../message-validations";
 import { Message } from "@prisma/client";
 
@@ -13,21 +13,21 @@ export class MessageGroupService {
     private static groupMemberRepository = prismaClient.messageGroupMembers;
     private static messageRepository = prismaClient.message;
 
-    static async getUserGroups(userId: string): Promise<MessageGroupsPublic[]> {
+    static async getUserMessageGroups(userId: string): Promise<MessageGroupsPublic[]> {
         const groups = await this.messageGroupRepository.findMany({
             where: {
+                isDeleted: false,
                 members: {
                     some: {
-                        userId: userId
+                        userId: userId,
                     }
                 }
             },
             include: {
                 owner: true,
                 members: {
-                    include: {
-                        user: true,
-                    },
+                    where: { isDeleted: false },
+                    include: { user: true },
                 },
             },
             orderBy: {
@@ -37,10 +37,11 @@ export class MessageGroupService {
         return groups.map(group => MessageGroupsPublic.fromPrismaQuery(group));
     }
 
-    static async getGroupById(groupId: string, userId: string): Promise<MessageGroupsPublic> {
+    static async getMessageGroupsById(groupId: string, userId: string): Promise<MessageGroupsPublic> {
         const group = await this.messageGroupRepository.findFirst({
             where: {
                 id: groupId,
+                isDeleted: false,
                 members: {
                     some: {
                         userId: userId
@@ -50,6 +51,7 @@ export class MessageGroupService {
             include: {
                 owner: true,
                 members: {
+                    where: { isDeleted: false }, // <-- filter di sini!
                     include: {
                         user: true,
                     },
@@ -64,18 +66,21 @@ export class MessageGroupService {
 
     static async createMessageGroup(req: MessageGroupsRequest, userId: string) {
         req = messageGroupsSchema.parse(req);
-        const members = await this.groupMemberRepository.findMany({
+
+        // Check if all userIds in req.members exist in the users table
+        const users = await prismaClient.user.findMany({
             where: {
-                userId: { in: req.members },
-            },
-            include: {
-                user: true,
+                id: { in: req.members },
             },
         });
 
-        if (members.length !== req.members.length) {
-            throw new Error("Some members not found");
+        if (users.length !== req.members.length) {
+            throw new Error("One or more users do not exist");
         }
+
+        // Prepare members array for group creation (exclude duplicates)
+        const uniqueMemberIds = Array.from(new Set(req.members));
+        const members = uniqueMemberIds.map(userId => ({ userId }));
 
         const group = await this.messageGroupRepository.create({
             data: {
@@ -124,11 +129,18 @@ export class MessageGroupService {
             where: { id: groupId },
             data: {
                 name: req.name ?? group.name,
-                //description: req.description ?? group.description,
+                members: req.members ? {
+                    create: req.members.map(userId => ({
+                        userId: userId,
+                    })),
+                } : undefined,
             },
             include: {
                 owner: true,
                 members: {
+                    orderBy: {
+                        createdAt: "desc",
+                    },
                     include: {
                         user: true,
                     },
@@ -136,6 +148,38 @@ export class MessageGroupService {
             },
         });
         return MessageGroupsPublic.fromPrismaQuery(updatedGroup);
+    }
+
+    static async deleteMemberFromGroup(groupId: string, userId: string, memberId: string): Promise<void> {
+        console.log("Deleting member from group:", groupId, userId, memberId);
+        const group = await this.messageGroupRepository.findFirst({
+            where: {
+                id: groupId,
+                ownerId: userId,
+            },
+        });
+        if (!group) {
+            throw new Error("Group not found or user is not the owner");
+        }
+        const member = await this.groupMemberRepository.findFirst({
+            where: {
+                messageGroupId: groupId,
+                userId: memberId,
+            },
+        });
+        if (!member) {
+            throw new Error("Member not found in the group");
+        }
+        //softdelete member
+        await this.groupMemberRepository.update({
+            where: {
+                id: member.id,
+            },
+            data: {
+                deletedAt: new Date(),
+                isDeleted: true,
+            },
+        });
     }
     static async deleteMessageGroup(groupId: string, userId: string): Promise<void> {
         const group = await this.messageGroupRepository.findFirst({
@@ -147,8 +191,12 @@ export class MessageGroupService {
         if (!group) {
             throw new Error("Group not found or user is not the owner");
         }
-        await this.messageGroupRepository.delete({
+        await this.messageGroupRepository.update({
             where: { id: groupId },
+            data: {
+                deletedAt: new Date(),
+                isDeleted: true,
+            },
         });
     }
 

@@ -2,12 +2,12 @@ import { Hono } from 'hono'
 import { userController } from './user/controllers/user-controller'
 import { authController } from './auth/controllers/auth-controller';
 import { profileController } from './user/controllers/profile-controller';
-import { HonoContext } from '@types/hono-context';
 import { messagesController } from './message/controllers/message-controller';
+import { messageGroupsController } from './message/controllers/message-groups-controller';
+import { HonoContext } from '@types/hono-context';
 import { authMiddleware } from './core/middleware';
 import { errorHandler } from './core/handlers/error-handler';
 import { websocket, webSocketConfig } from './core/websocket-config';
-import { messageGroupsController } from './message/controllers/message-groups-controller';
 
 const app = new Hono<{ Variables: HonoContext }>();
 
