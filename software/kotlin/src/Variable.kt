@@ -6,6 +6,8 @@ fun main() {
     val d: Byte = 40
     val e: Float = 50.0F
     val f: Double = 60.0
+    f = 9
+    print("test value $f")
 //    Mutable variable
     var a1: Int = 10
     var b1: Long = 20L
