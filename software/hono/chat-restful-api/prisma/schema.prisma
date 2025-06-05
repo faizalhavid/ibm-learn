@@ -106,10 +106,13 @@ model Message {
 model MessageGroups {
   id        String   @id @default(cuid())
   name      String?  @unique @db.VarChar(255)
+  description String? @db.Text
+  avatar    String?  @db.VarChar(255) 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
   deletedAt DateTime? @map("deleted_at")
   isDeleted Boolean  @default(false) @map("is_deleted")
+  isPublic  Boolean  @default(false) @map("is_public")
 
   ownerId  String                 @map("owner_id")
   owner    User                   @relation(fields: [ownerId], references: [id], onDelete: Cascade)

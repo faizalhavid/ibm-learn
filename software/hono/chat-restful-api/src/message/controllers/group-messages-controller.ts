@@ -18,17 +18,17 @@ groupMessagesController.get("/:groupId", async (c) => {
     })
 })
 
-groupMessagesController.get("/:groupId/messages/:messageId", async (c) => {
-    const user = c.get("authenticatedUser")
-    const groupId = c.req.param("groupId")
-    const messageId = c.req.param("messageId")
-    const message = await GroupMessagesService.getGroupMessageById(groupId, messageId, user.id)
-    return c.json({
-        success: true,
-        message: "Group message retrieved successfully",
-        data: message
-    })
-})
+// groupMessagesController.get("/:groupId/messages/:messageId", async (c) => {
+//     const user = c.get("authenticatedUser")
+//     const groupId = c.req.param("groupId")
+//     const messageId = c.req.param("messageId")
+//     const message = await GroupMessagesService.getGroupMessageById(groupId, messageId, user.id)
+//     return c.json({
+//         success: true,
+//         message: "Group message retrieved successfully",
+//         data: message
+//     })
+// })
 
 groupMessagesController.post("/:groupId", async (c) => {
     const user = c.get("authenticatedUser")

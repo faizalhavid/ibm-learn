@@ -7,8 +7,8 @@ import { Message, MessageGroupMembers, User } from "@prisma/client";
 
 export interface MessageGroupsRequest {
     name: string;
-    //description?: string;
-    //isPublic?: boolean;
+    description?: string;
+    isPublic?: boolean;
     members: string[];
 }
 
@@ -25,7 +25,7 @@ export namespace MessageGroupsPublic {
     export function fromPrismaQuery(
         group: MessageGroups & {
             owner: User;
-            members: (MessageGroupMembers & { user: User })[]; // <-- perbaiki di sini
+            members: (MessageGroupMembers & { user: User })[];
             lastMessage?: Message;
         }
     ): MessageGroupsPublic {
@@ -37,6 +37,9 @@ export namespace MessageGroupsPublic {
             id: group.id,
             name: group.name,
             createdAt: group.createdAt,
+            isPublic: group.isPublic,
+            description: group.description,
+            avatar: group.avatar,
             deletedAt: group.deletedAt,
             isDeleted: group.isDeleted,
             membersCount: group.members.length,

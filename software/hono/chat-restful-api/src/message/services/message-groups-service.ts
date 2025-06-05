@@ -2,7 +2,7 @@ import { prismaClient } from "@/core/database";
 import { PaginatedResponse } from "@/core/types/api-response";
 import { MessageGroupsMessagesRequest, MessagePublic } from "../types/message";
 import { MessageGroupsPublic, MessageGroupsRequest } from "../types/message-groups";
-import { messageGroupsSchema, messageSchema } from "../message-validations";
+import { messageGroupsBaseSchema, messageGroupsSchema, messageSchema } from "../message-validations";
 import { Message } from "@prisma/client";
 
 
@@ -64,6 +64,29 @@ export class MessageGroupService {
         return MessageGroupsPublic.fromPrismaQuery(group);
     }
 
+    static async getMessageGroupsPublic(groupId: string): Promise<MessageGroupsPublic> {
+        const group = await this.messageGroupRepository.findFirst({
+            where: {
+                id: groupId,
+                isPublic: true,
+                isDeleted: false,
+            },
+            include: {
+                owner: true,
+                members: {
+                    where: { isDeleted: false },
+                    include: {
+                        user: true,
+                    },
+                },
+            },
+        });
+        if (!group) {
+            throw new Error("Group not found");
+        }
+        return MessageGroupsPublic.fromPrismaQuery(group);
+    }
+
     static async createMessageGroup(req: MessageGroupsRequest, userId: string) {
         req = messageGroupsSchema.parse(req);
 
@@ -84,8 +107,7 @@ export class MessageGroupService {
 
         const group = await this.messageGroupRepository.create({
             data: {
-                name: req.name,
-                //description: data.description,
+                ...req,
                 ownerId: userId,
                 members: {
                     create: members.map(member => ({
@@ -107,7 +129,7 @@ export class MessageGroupService {
     }
 
     static async updateMessageGroup(groupId: string, req: Partial<MessageGroupsRequest>, userId: string): Promise<MessageGroupsPublic> {
-        req = messageGroupsSchema.partial().parse(req);
+        req = messageGroupsBaseSchema.partial().parse(req);
         const group = await this.messageGroupRepository.findFirst({
             where: {
                 id: groupId,
