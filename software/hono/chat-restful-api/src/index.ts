@@ -8,6 +8,7 @@ import { HonoContext } from '@types/hono-context';
 import { authMiddleware } from './core/middleware';
 import { errorHandler } from './core/handlers/error-handler';
 import { websocket, webSocketConfig } from './core/websocket-config';
+import { groupMessagesController } from './message/controllers/group-messages-controller';
 
 const app = new Hono<{ Variables: HonoContext }>();
 
@@ -20,6 +21,7 @@ app.route('/auth', authController);
 app.route('/profile', profileController);
 app.route('/messages', messagesController);
 app.route('/message-groups', messageGroupsController);
+app.route('/group-messages', groupMessagesController);
 export default app;
 
 export const server = Bun.serve({ fetch: app.fetch, port: 3000, websocket });

@@ -20,7 +20,3 @@ export interface MessageGroupsMessagesRequest {
     message: MessageRequest;
 }
 
-export interface MessageGroupsMessagesPublic extends Omit<MessageGroupMessages, "updatedAt" | "messageId"> {
-    message: MessagePublic;
-    // messageGroups: MessageGroupsPublic;
-}

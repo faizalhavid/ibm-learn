@@ -160,3 +160,29 @@ export class MessageGroupsTest {
         await prismaClient.messageGroups.deleteMany({});
     }
 }
+
+export class MessageGroupsMessagesTest {
+    static async create(props: {
+        id: string;
+        messageId: string;
+        senderId: string;
+        groupId: string;
+    }) {
+        const { id, messageId, senderId, groupId } = props;
+        await prismaClient.messageGroupMessages.create({
+            data: {
+                id: id,
+                messageId: messageId,
+                messageGroupId: groupId
+            }
+        });
+    }
+
+    static async clearAllMessages(groupId: string) {
+        await prismaClient.messageGroupMessages.deleteMany({
+            where: {
+                messageGroupId: groupId
+            }
+        });
+    }
+}

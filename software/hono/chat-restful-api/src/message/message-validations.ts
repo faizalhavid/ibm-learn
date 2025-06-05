@@ -21,3 +21,7 @@ export const messageGroupsSchema = z.object({
     name: z.string().min(1, "Group name is required").max(100, "Group name must not exceed 100 characters"),
     members: z.array(z.string().min(1, "User ID is required"))
 });
+
+export const groupMessageSchema = z.object({
+    content: z.string().min(1, "Message content is required").max(500, "Message content must not exceed 500 characters")
+});
