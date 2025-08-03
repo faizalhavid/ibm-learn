@@ -1,122 +1,164 @@
-## SQL Warmup: Online Bookstore Management System
+## SQL Warmup: Gym Membership Management System
 
 ### 🧠 Case Study
-An online bookstore wants to build a database system to manage:
-- Books and categories
-- Book authors
-- Customers
-- Purchase transactions
-- Customer reviews
+Sebuah gym ingin membangun sistem database untuk mengelola:
+- Data member dan keanggotaan
+- Pelatih (trainer)
+- Jadwal kelas
+- Transaksi pembayaran
+- Kehadiran kelas
 
 ---
 
 ### 🔰 Phase 1: Creating Database Structure (DDL)
 
 #### Task 1.1
-Create a database named `BookStore`.
+Buat database bernama `GymDB`.
 
 #### Task 1.2
-Create a table `Authors` with the following columns:
-- `author_id` (PK, AUTO_INCREMENT)
-- `name` (varchar, required)
-- `bio` (text, optional)
+Buat tabel `Trainers` dengan kolom:
+- `trainer_id` (PK, AUTO_INCREMENT)
+- `name` (varchar, wajib)
+- `specialty` (varchar, opsional)
 
 #### Task 1.3
-Create a table `Books` with the following structure:
-- `book_id` (PK, AUTO_INCREMENT)
-- `title` (varchar, required)
-- `price` (decimal)
-- `stock` (int)
-- `published_year` (int)
-- `author_id` (FK to `Authors`)
-- `category` (varchar)
+Buat tabel `Members`:
+- `member_id` (PK, AUTO_INCREMENT)
+- `name` (varchar, wajib)
+- `email` (varchar, unik)
+- `join_date` (date)
 
 #### Task 1.4
-Create a table `Customers`:
-- `customer_id` (PK, AUTO_INCREMENT)
-- `name` (varchar)
-- `email` (varchar, unique)
-- `registered_at` (date)
+Buat tabel `Classes`:
+- `class_id` (PK, AUTO_INCREMENT)
+- `class_name` (varchar)
+- `trainer_id` (FK ke `Trainers`)
+- `schedule` (datetime)
 
 #### Task 1.5
-Create a table `Orders`:
-- `order_id` (PK, AUTO_INCREMENT)
-- `customer_id` (FK to `Customers`)
-- `order_date` (date)
-- `total_amount` (decimal)
+Buat tabel `Payments`:
+- `payment_id` (PK, AUTO_INCREMENT)
+- `member_id` (FK ke `Members`)
+- `amount` (decimal)
+- `payment_date` (date)
 
 #### Task 1.6
-Create a table `OrderItems`:
-- `order_id` (FK to `Orders`)
-- `book_id` (FK to `Books`)
-- `quantity` (int)
-- `price_each` (decimal)
-- Combination of `order_id` and `book_id` as PK
+Buat tabel `Attendance`:
+- `attendance_id` (PK, AUTO_INCREMENT)
+- `member_id` (FK ke `Members`)
+- `class_id` (FK ke `Classes`)
+- `attend_date` (date)
+
+
+### DDL (Data Definition Language)
+
+#### Task DDL 1
+Tambahkan kolom `phone_number` (varchar, opsional) ke tabel `Members`.
+
+#### Task DDL 2
+Ubah tipe data kolom `amount` pada tabel `Payments` menjadi NUMBER(10,2).
+
+#### Task DDL 3
+Hapus kolom `specialty` dari tabel `Trainers`.
+
+#### Task DDL 4
+Buat index pada kolom `email` di tabel `Members`.
+
+#### Task DDL 5
+Buat sequence `seq_member_id` untuk auto increment pada `member_id` (karena Oracle tidak punya AUTO_INCREMENT).
+
+---
+
+### DML (Data Manipulation Language)
+
+#### Task DML 1
+Update nama member dengan `member_id = 2` menjadi "Budi Santoso".
+
+#### Task DML 2
+Hapus data pembayaran dengan `payment_id = 1`.
+
+#### Task DML 3
+Update semua member yang belum pernah melakukan pembayaran menjadi status "Inactive" (tambahkan kolom status jika perlu).
+
+#### Task DML 4
+Masukkan 2 data ke tabel `Attendance` untuk member yang sama pada dua kelas berbeda.
+
+#### Task DML 5
+Hapus semua kehadiran (Attendance) untuk kelas dengan `class_id = 3`.
+
+---
+
+**Catatan:**  
+- Gunakan sintaks Oracle SQL.
+- Untuk beberapa task, kamu bisa menyesuaikan struktur tabel jika diperlukan (misal, menambah kolom status).
 
 ---
 
 ### 📥 Phase 2: Data Insertion (DML)
 
 #### Task 2.1
-Insert 3 authors into the `Authors` table.
+Masukkan 3 pelatih ke tabel `Trainers`.
 
 #### Task 2.2
-Insert at least 5 books from 2 different authors.
+Masukkan minimal 5 member.
 
 #### Task 2.3
-Insert 3 customers.
+Masukkan 3 kelas yang berbeda.
 
 #### Task 2.4
-Simulate 2 order transactions by different customers. Ensure each order has more than 1 item.
+Simulasikan 2 pembayaran oleh member berbeda.
+
+#### Task 2.5
+Catat kehadiran 2 member pada 2 kelas berbeda.
 
 ---
 
 ### 🔎 Phase 3: Basic Queries (SELECT, JOIN)
 
 #### Task 3.1
-Display a list of all books along with their authors' names.
+Tampilkan daftar semua kelas beserta nama pelatihnya.
 
 #### Task 3.2
-Display all orders made by a customer named "Budi," including the date and total amount.
+Tampilkan semua pembayaran yang dilakukan oleh member bernama "Siti".
 
 #### Task 3.3
-Display all items in a specific order (e.g., `order_id = 1`) along with the book names and unit prices.
+Tampilkan kehadiran kelas untuk member tertentu (misal, `member_id = 1`).
 
 ---
 
 ### 📊 Phase 4: Intermediate Queries (GROUP BY, HAVING, LIKE, SUBQUERY)
 
 #### Task 4.1
-Display the total revenue of the store from all orders.
+Tampilkan total pendapatan dari semua pembayaran.
 
 #### Task 4.2
-Display the top 3 most ordered books (based on total quantity).
+Tampilkan 3 member dengan kehadiran terbanyak.
 
 #### Task 4.3
-Display customers who have ordered more than 3 books in a single order.
+Tampilkan kelas yang dihadiri lebih dari 2 member.
 
 ---
 
 ### 🧩 Phase 5: Advanced Queries (VIEW, CTE, WINDOW FUNCTION)
 
 #### Task 5.1
-Create a VIEW `best_selling_books` containing `book_id`, `title`, and total quantity sold.
+Buat VIEW `active_members` berisi member yang pernah hadir minimal 2 kali.
 
 #### Task 5.2
-Use a CTE to display the customer with the highest total spending.
+Gunakan CTE untuk menampilkan pelatih dengan jumlah kelas terbanyak.
 
 #### Task 5.3
-Use `RANK()` to rank books based on the highest sales.
+Gunakan `RANK()` untuk mengurutkan member berdasarkan total pembayaran terbesar.
 
 ---
 
 ### ⚙️ Phase 6: Advanced Manipulation (UPDATE, DELETE, TRIGGER)
 
 #### Task 6.1
-Update the book stock whenever a new order is placed (simulate with a direct UPDATE).
+Update data keanggotaan member (misal, upgrade status) secara langsung.
 
 #### Task 6.2
-Create a TRIGGER to automatically reduce book stock after `OrderItems` data is added.
+Buat TRIGGER untuk otomatis menambah kehadiran setelah data dimasukkan ke `Attendance`.
 
 #### Task 6.3
-Delete a specific author and all their books in a cascading manner (use `ON DELETE CASCADE`).
+Hapus seorang pelatih beserta semua kelas yang diasuhnya secara cascading (`ON DELETE CASCADE`).
