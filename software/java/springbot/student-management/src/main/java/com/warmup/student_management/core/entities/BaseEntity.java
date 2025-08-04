@@ -24,6 +24,6 @@ public class BaseEntity {
 
     private LocalDateTime deleteAt;
 
-    private boolean isDeleted;
+    private Boolean isDeleted;
 
 }
