@@ -125,6 +125,49 @@ func runApplicationWithPanic(isError bool) {
 	fmt.Println("Application ran successfully")
 }
 
+type Oligarki interface {
+	getName() string
+	getOrmases() []string
+}
+
+// function usage props interface
+func sayOligarki(olgarki Oligarki) {
+	fmt.Println("Welcome Oligarki !", olgarki.getName())
+}
+
+type TernakMulyono struct {
+	name   string
+	age    int
+	asset  float32
+	parpol string
+}
+
+func (termul TernakMulyono) sayTermul(jargon string) {
+	fmt.Println(jargon, termul.name, "!")
+}
+
+func (termul TernakMulyono) getName() string {
+	return termul.name
+}
+
+func (trml TernakMulyono) getOrmases() string {
+	return trml.name
+}
+
+func createMap(a string) map[string]string {
+	if a == "" {
+		return nil
+	} else {
+		return map[string]string{
+			"key": a,
+		}
+	}
+}
+
+func assertionType() interface{} {
+	return "OK"
+}
+
 func main() {
 
 	// to init go module
@@ -354,5 +397,52 @@ func main() {
 	// recovery is a proccess panic which is will catch panic data
 
 	runApplicationWithPanic(true)
+	// Struct
+	var termuls []TernakMulyono
+	termuls = append(termuls, TernakMulyono{name: "Mulyoni", age: 60, asset: 12000000000, parpol: "PSI"})
+	fmt.Println("TernakMulyono :", termuls)
+	var termul2 TernakMulyono
+	termul2.name = "prabroro"
+	termul2.age = 300
+	fmt.Println("TernakMulyono 2:", termul2)
+	// Struct Method
+	termul2.sayTermul("Hideup")
 
+	// Interface
+	fmt.Println("Kawan Ternak Mulyono Oligarki :")
+	// sayOligarki(termuls[0])
+
+	// nil
+	data_1 := createMap("")
+	data_2 := createMap("jd931d")
+	fmt.Println("1", data_1, "2", data_2)
+
+	// Type Assertion
+	// change type data diff from cast
+	data_3 := assertionType()
+	data_3_string := data_3.(string)
+	fmt.Println("data assertion", data_3_string)
+	// data_3_int := data_3.(int) // panic
+	// fmt.Println("data assertion", data_3_int)
+
+	// pointer
+	// pass by value
+	person1 := TernakMulyono{"Jokowi", 1000, 10000, "PDI"}
+	person2 := person1 // copy value not referenec
+
+	person2.name = "govlan"
+	fmt.Println(person1)
+	fmt.Println(person2)
+
+	// pass by reference
+	// using operator &<variable>
+	var person4 *TernakMulyono = &person1 // manually write without :=
+	person3 := &person1                   // its mean person3 will reference to memory address person1 and then both will same addres, so this can call be pointer
+	person3.name = "Abah"
+	person3 = &TernakMulyono{"Abah", 9999, 999, "PKS"} // this will reference to new memory, without touch address before
+	fmt.Println(person1)
+	fmt.Println(person3)
+	fmt.Println(person4)
+
+	// using asterisk
 }
