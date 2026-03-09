@@ -168,6 +168,20 @@ func assertionType() interface{} {
 	return "OK"
 }
 
+// Pointer Function
+func changeName(tm TernakMulyono, newName string) {
+	tm.name = newName
+	fmt.Println("Inside Function", newName)
+}
+
+func (tm *TernakMulyono) changeNameWithPointer() {
+	tm.name = "Bung, " + tm.name
+}
+
+func changeNameWithPointer(tm *TernakMulyono, name string) {
+	tm.name = name
+}
+
 func main() {
 
 	// to init go module
@@ -440,9 +454,37 @@ func main() {
 	person3 := &person1                   // its mean person3 will reference to memory address person1 and then both will same addres, so this can call be pointer
 	person3.name = "Abah"
 	person3 = &TernakMulyono{"Abah", 9999, 999, "PKS"} // this will reference to new memory, without touch address before
+
 	fmt.Println(person1)
 	fmt.Println(person3)
 	fmt.Println(person4)
 
 	// using asterisk
+	person6 := &person1 // its mean person6 will reference to memory address person1 and then both will same addres, so this can call be pointer
+	person6.name = "Abah"
+	*person6 = TernakMulyono{"Abah", 9999, 999, "PKS"} // its mean change value, who have reference from person6 it will folow to new reference, cause using *, so person 5 and 6 it will be included
+
+	// [memory address] -> [value]
+	// &  : get memory address (create pointer)
+	// *  : access / modify value pointed by pointer
+
+	fmt.Println(person1)
+	fmt.Println(person6)
+
+	//  Pointer using new
+	// declare pointer var with empty struct
+	var joko *TernakMulyono = &TernakMulyono{}
+	// declare pointer var with empty struct via new
+	var joko2 *TernakMulyono = new(TernakMulyono)
+	fmt.Println(joko, joko2)
+
+	// Pointer Function
+	changeName(person1, "Imin")
+	fmt.Println("New name", person1.name) // its never changed
+
+	person1.changeNameWithPointer()
+	fmt.Println(person1)
+	changeNameWithPointer(&person1, "fufufafa")
+	fmt.Println(person1)
+
 }

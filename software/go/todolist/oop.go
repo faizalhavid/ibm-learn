@@ -15,7 +15,6 @@ type Employee interface {
 // panic(v interface[])
 // recovery() interface[]
 
-
 type Departement struct {
 	Name    string
 	Manager string
@@ -56,7 +55,6 @@ func (p Person) getDepart() string {
 }
 
 func main() {
-
 	var persons []Person
 
 	// for i := 0; i < 5; i++ {
@@ -75,7 +73,5 @@ func main() {
 	// }
 
 	persons[0].getDepart()
-
 	fmt.Println("Person 1 :", persons[0])
-
 }
