@@ -13,8 +13,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 @Data
-@EqualsAndHashCode(callSuper = true)
 @Entity(name = "m_students")
+@EqualsAndHashCode(callSuper = true)
 public class Student extends BaseEntity {
 
     private String name;
